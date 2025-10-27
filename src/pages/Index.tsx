@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Heart, Users, Leaf, ArrowRight, Mail, Phone } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Heart, Users, Leaf, ArrowRight, Mail, Phone, AlertTriangle, Siren } from "lucide-react";
 import heroBanner from "@/assets/hero-banner.jpg";
 import restaurantIcon from "@/assets/restaurant-icon.png";
 import organizationIcon from "@/assets/organization-icon.png";
@@ -91,8 +92,46 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Emergency Mode Section */}
+      <section className="relative -mt-16 pb-8 z-10">
+        <div className="container mx-auto px-4">
+          <Alert className="bg-gradient-to-r from-accent via-accent/90 to-orange-600 border-accent/50 shadow-2xl shadow-accent/20">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-white/20 backdrop-blur animate-pulse">
+                <Siren className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <AlertTitle className="text-white text-2xl font-bold mb-2 flex items-center gap-2">
+                  Emergency Response Mode
+                  <AlertTriangle className="w-5 h-5" />
+                </AlertTitle>
+                <AlertDescription className="text-white/90 text-base mb-4">
+                  Activate priority alerts during natural disasters and emergencies. Get immediate support from nearby donors and volunteers with real-time coordination for rapid crisis response.
+                </AlertDescription>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    size="lg"
+                    className="bg-white text-accent hover:bg-white/90 font-semibold shadow-lg"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Activate Emergency Mode
+                  </Button>
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    className="border-white/30 text-white hover:bg-white/10 backdrop-blur"
+                  >
+                    Learn More
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Alert>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="relative -mt-16 pb-20">
+      <section className="relative pb-20">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
