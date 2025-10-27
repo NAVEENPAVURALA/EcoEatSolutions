@@ -12,7 +12,7 @@ import individualIcon from "@/assets/individual-icon.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState("English");
+  const [language, setLanguage] = useState("en");
 
   const languages = [
     { code: "en", name: "English" },
@@ -22,6 +22,173 @@ const Index = () => {
     { code: "bn", name: "বাংলা (Bengali)" },
     { code: "mr", name: "मराठी (Marathi)" }
   ];
+
+  const translations: Record<string, any> = {
+    en: {
+      badge: "Fighting Food Waste Together",
+      heroTitle1: "Transform Surplus into",
+      heroTitle2: "Sustenance",
+      heroDesc: "Join India's largest food redistribution network. Connect donors with communities in need, eliminate waste, and create meaningful impact—one meal at a time.",
+      getStarted: "Get Started",
+      signIn: "Sign In",
+      stats: {
+        meals: "Meals Donated",
+        partners: "Active Partners",
+        waste: "Waste Prevented"
+      },
+      whoWeServe: "Who We Serve",
+      whoWeServeDesc: "EcoEatSolutions brings together everyone in the food ecosystem to create sustainable impact",
+      userTypes: {
+        restaurant: {
+          title: "Restaurants & Hotels",
+          desc: "Turn surplus food into community impact. Donate excess meals and track your positive influence."
+        },
+        organization: {
+          title: "NGOs & Organizations",
+          desc: "Access fresh, quality food donations for your community. Feed more people with less effort."
+        },
+        individual: {
+          title: "Individual Donors",
+          desc: "Share home-cooked meals with neighbors in need. Every contribution creates lasting change."
+        }
+      },
+      learnMore: "Learn More",
+      emergencyTitle: "Emergency Response Mode",
+      emergencyDesc: "Activate priority alerts during natural disasters and emergencies. Get immediate support from nearby donors and volunteers with real-time coordination for rapid crisis response.",
+      activateEmergency: "Activate Emergency Mode",
+      nutritionBadge: "Nutrition Tracking",
+      nutritionTitle: "Complete Nutrition Information for Every Meal",
+      nutritionDesc: "Track calories, nutrients, and dietary restrictions for all donated food. Our platform ensures recipients receive balanced meals while donors can showcase the nutritional value of their contributions.",
+      nutritionFeatures: {
+        dietary: {
+          title: "Dietary Restriction Filters",
+          desc: "Vegetarian, vegan, gluten-free, and more dietary preferences"
+        },
+        planning: {
+          title: "Meal Planning Assistance",
+          desc: "Help organizations plan balanced meals for their communities"
+        },
+        safety: {
+          title: "Food Safety Guidelines",
+          desc: "Expiry tracking and safety alerts to ensure quality"
+        }
+      },
+      nutritionStats: {
+        calories: "Calories Tracked Daily",
+        preferences: "Dietary Preferences",
+        safety: "Safety Compliance",
+        support: "Nutrition Support"
+      },
+      howItWorks: "How It Works",
+      howItWorksDesc: "Simple steps to make a big difference",
+      steps: {
+        signup: { title: "Sign Up", desc: "Create your account in minutes" },
+        post: { title: "Post or Request", desc: "Share surplus or request food" },
+        match: { title: "Get Matched", desc: "Connect with nearby partners" },
+        impact: { title: "Make Impact", desc: "Complete donation & track results" }
+      },
+      ctaTitle: "Ready to Make a Difference?",
+      ctaDesc: "Join thousands of donors and organizations working together to end food waste and hunger",
+      startDonating: "Start Donating Today",
+      registerOrg: "Register Your Organization",
+      footer: {
+        tagline: "Transforming food waste into community sustenance across India",
+        platform: "Platform",
+        forRestaurants: "For Restaurants",
+        forNGOs: "For NGOs",
+        forIndividuals: "For Individuals",
+        support: "Support",
+        helpCenter: "Help Center",
+        safetyGuidelines: "Safety Guidelines",
+        terms: "Terms of Service",
+        contact: "Contact",
+        copyright: "© 2025 EcoEatSolutions. All rights reserved. Fighting food waste, one meal at a time."
+      }
+    },
+    hi: {
+      badge: "खाद्य अपशिष्ट के खिलाफ एक साथ लड़ाई",
+      heroTitle1: "अधिशेष को",
+      heroTitle2: "पोषण में बदलें",
+      heroDesc: "भारत के सबसे बड़े खाद्य पुनर्वितरण नेटवर्क में शामिल हों। दानदाताओं को जरूरतमंद समुदायों से जोड़ें, अपशिष्ट को समाप्त करें, और एक बार में एक भोजन के साथ सार्थक प्रभाव बनाएं।",
+      getStarted: "शुरू करें",
+      signIn: "साइन इन करें",
+      stats: {
+        meals: "दान किए गए भोजन",
+        partners: "सक्रिय साझेदार",
+        waste: "अपशिष्ट रोका गया"
+      },
+      whoWeServe: "हम किसकी सेवा करते हैं",
+      whoWeServeDesc: "EcoEatSolutions सभी को एक साथ लाता है स्थायी प्रभाव बनाने के लिए",
+      userTypes: {
+        restaurant: {
+          title: "रेस्तरां और होटल",
+          desc: "अधिशेष भोजन को सामुदायिक प्रभाव में बदलें। अतिरिक्त भोजन दान करें और अपने सकारात्मक प्रभाव को ट्रैक करें।"
+        },
+        organization: {
+          title: "एनजीओ और संगठन",
+          desc: "अपने समुदाय के लिए ताजा, गुणवत्ता वाले खाद्य दान तक पहुंचें। कम प्रयास से अधिक लोगों को खिलाएं।"
+        },
+        individual: {
+          title: "व्यक्तिगत दानदाता",
+          desc: "जरूरतमंद पड़ोसियों के साथ घर का बना भोजन साझा करें। हर योगदान स्थायी परिवर्तन बनाता है।"
+        }
+      },
+      learnMore: "और जानें",
+      emergencyTitle: "आपातकालीन प्रतिक्रिया मोड",
+      emergencyDesc: "प्राकृतिक आपदाओं और आपात स्थितियों के दौरान प्राथमिकता अलर्ट सक्रिय करें। तेजी से संकट प्रतिक्रिया के लिए वास्तविक समय समन्वय के साथ आस-पास के दानदाताओं और स्वयंसेवकों से तत्काल सहायता प्राप्त करें।",
+      activateEmergency: "आपातकालीन मोड सक्रिय करें",
+      nutritionBadge: "पोषण ट्रैकिंग",
+      nutritionTitle: "प्रत्येक भोजन के लिए पूर्ण पोषण जानकारी",
+      nutritionDesc: "दान किए गए सभी भोजन के लिए कैलोरी, पोषक तत्व और आहार प्रतिबंधों को ट्रैक करें। हमारा प्लेटफ़ॉर्म सुनिश्चित करता है कि प्राप्तकर्ताओं को संतुलित भोजन मिले जबकि दानदाता अपने योगदान के पोषण मूल्य को प्रदर्शित कर सकते हैं।",
+      nutritionFeatures: {
+        dietary: {
+          title: "आहार प्रतिबंध फ़िल्टर",
+          desc: "शाकाहारी, शाकाहारी, लस मुक्त, और अधिक आहार प्राथमिकताएं"
+        },
+        planning: {
+          title: "भोजन योजना सहायता",
+          desc: "संगठनों को उनके समुदायों के लिए संतुलित भोजन की योजना बनाने में मदद करें"
+        },
+        safety: {
+          title: "खाद्य सुरक्षा दिशानिर्देश",
+          desc: "गुणवत्ता सुनिश्चित करने के लिए समाप्ति ट्रैकिंग और सुरक्षा अलर्ट"
+        }
+      },
+      nutritionStats: {
+        calories: "दैनिक कैलोरी ट्रैक की गई",
+        preferences: "आहार प्राथमिकताएं",
+        safety: "सुरक्षा अनुपालन",
+        support: "पोषण समर्थन"
+      },
+      howItWorks: "यह कैसे काम करता है",
+      howItWorksDesc: "बड़ा बदलाव लाने के लिए सरल कदम",
+      steps: {
+        signup: { title: "साइन अप करें", desc: "मिनटों में अपना खाता बनाएं" },
+        post: { title: "पोस्ट या अनुरोध", desc: "अधिशेष साझा करें या भोजन का अनुरोध करें" },
+        match: { title: "मैच प्राप्त करें", desc: "आस-पास के साझेदारों से कनेक्ट करें" },
+        impact: { title: "प्रभाव बनाएं", desc: "दान पूरा करें और परिणाम ट्रैक करें" }
+      },
+      ctaTitle: "बदलाव लाने के लिए तैयार हैं?",
+      ctaDesc: "हजारों दानदाताओं और संगठनों के साथ जुड़ें जो खाद्य अपशिष्ट और भूख को समाप्त करने के लिए एक साथ काम कर रहे हैं",
+      startDonating: "आज दान करना शुरू करें",
+      registerOrg: "अपने संगठन को पंजीकृत करें",
+      footer: {
+        tagline: "पूरे भारत में खाद्य अपशिष्ट को सामुदायिक भरण-पोषण में बदलना",
+        platform: "प्लेटफ़ॉर्म",
+        forRestaurants: "रेस्तरां के लिए",
+        forNGOs: "एनजीओ के लिए",
+        forIndividuals: "व्यक्तियों के लिए",
+        support: "समर्थन",
+        helpCenter: "सहायता केंद्र",
+        safetyGuidelines: "सुरक्षा दिशानिर्देश",
+        terms: "सेवा की शर्तें",
+        contact: "संपर्क",
+        copyright: "© 2025 EcoEatSolutions. सर्वाधिकार सुरक्षित। खाद्य अपशिष्ट के खिलाफ लड़ाई, एक बार में एक भोजन।"
+      }
+    }
+  };
+
+  const t = translations[language] || translations.en;
 
   const userTypes = [
     {
@@ -58,7 +225,7 @@ const Index = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2 bg-background/95 backdrop-blur shadow-lg">
               <Languages className="w-4 h-4" />
-              <span className="hidden sm:inline">{language}</span>
+              <span className="hidden sm:inline">{languages.find(l => l.code === language)?.name.split(" ")[0]}</span>
               <Globe className="w-4 h-4 sm:hidden" />
             </Button>
           </DropdownMenuTrigger>
@@ -66,7 +233,7 @@ const Index = () => {
             {languages.map((lang) => (
               <DropdownMenuItem
                 key={lang.code}
-                onClick={() => setLanguage(lang.name.split(" ")[0])}
+                onClick={() => setLanguage(lang.code)}
                 className="cursor-pointer"
               >
                 {lang.name}
@@ -85,17 +252,16 @@ const Index = () => {
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
                 <Leaf className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Fighting Food Waste Together</span>
+                <span className="text-sm font-medium text-primary">{t.badge}</span>
               </div>
               
               <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-                Transform Surplus into{" "}
-                <span className="gradient-hero text-gradient">Sustenance</span>
+                {t.heroTitle1}{" "}
+                <span className="gradient-hero text-gradient">{t.heroTitle2}</span>
               </h1>
               
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Join India's largest food redistribution network. Connect donors with communities in need, 
-                eliminate waste, and create meaningful impact—one meal at a time.
+                {t.heroDesc}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
@@ -104,14 +270,14 @@ const Index = () => {
                   className="gradient-primary hover:shadow-glow"
                   onClick={() => navigate("/signup")}
                 >
-                  Get Started <ArrowRight className="ml-2 w-5 h-5" />
+                  {t.getStarted} <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline"
                   onClick={() => navigate("/login")}
                 >
-                  Sign In
+                  {t.signIn}
                 </Button>
               </div>
             </div>
@@ -137,12 +303,12 @@ const Index = () => {
                 <Siren className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
-                <AlertTitle className="text-white text-2xl font-bold mb-2 flex items-center gap-2">
-                  Emergency Response Mode
+            <AlertTitle className="text-white text-2xl font-bold mb-2 flex items-center gap-2">
+                  {t.emergencyTitle}
                   <AlertTriangle className="w-5 h-5" />
                 </AlertTitle>
                 <AlertDescription className="text-white/90 text-base mb-4">
-                  Activate priority alerts during natural disasters and emergencies. Get immediate support from nearby donors and volunteers with real-time coordination for rapid crisis response.
+                  {t.emergencyDesc}
                 </AlertDescription>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button 
@@ -150,7 +316,7 @@ const Index = () => {
                     className="bg-white text-accent hover:bg-white/90 font-semibold shadow-lg"
                     onClick={() => navigate("/signup")}
                   >
-                    Activate Emergency Mode
+                    {t.activateEmergency}
                   </Button>
                   <Button 
                     size="lg"
@@ -178,7 +344,9 @@ const Index = () => {
                   </div>
                   <div>
                     <div className="text-3xl font-bold">{stat.number}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {index === 0 ? t.stats.meals : index === 1 ? t.stats.partners : t.stats.waste}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -191,9 +359,9 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Who We Serve</h2>
+            <h2 className="text-4xl font-bold mb-4">{t.whoWeServe}</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              EcoEatSolutions brings together everyone in the food ecosystem to create sustainable impact
+              {t.whoWeServeDesc}
             </p>
           </div>
           
@@ -208,14 +376,18 @@ const Index = () => {
                 
                 <div className="relative space-y-4">
                   <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-4 group-hover:scale-110 transition-transform">
-                    <img src={type.icon} alt={type.title} className="w-full h-full object-contain" />
+                    <img src={type.icon} alt={index === 0 ? t.userTypes.restaurant.title : index === 1 ? t.userTypes.organization.title : t.userTypes.individual.title} className="w-full h-full object-contain" />
                   </div>
                   
-                  <h3 className="text-2xl font-bold">{type.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{type.description}</p>
+                  <h3 className="text-2xl font-bold">
+                    {index === 0 ? t.userTypes.restaurant.title : index === 1 ? t.userTypes.organization.title : t.userTypes.individual.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {index === 0 ? t.userTypes.restaurant.desc : index === 1 ? t.userTypes.organization.desc : t.userTypes.individual.desc}
+                  </p>
                   
                   <div className="flex items-center text-primary font-semibold pt-4">
-                    Learn More <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    {t.learnMore} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Card>
@@ -231,15 +403,15 @@ const Index = () => {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/20">
                 <Apple className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-accent">Nutrition Tracking</span>
+                <span className="text-sm font-medium text-accent">{t.nutritionBadge}</span>
               </div>
               
               <h2 className="text-4xl font-bold">
-                Complete Nutrition Information for Every Meal
+                {t.nutritionTitle}
               </h2>
               
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Track calories, nutrients, and dietary restrictions for all donated food. Our platform ensures recipients receive balanced meals while donors can showcase the nutritional value of their contributions.
+                {t.nutritionDesc}
               </p>
               
               <div className="space-y-4">
@@ -248,8 +420,8 @@ const Index = () => {
                     <Heart className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">Dietary Restriction Filters</h4>
-                    <p className="text-sm text-muted-foreground">Vegetarian, vegan, gluten-free, and more dietary preferences</p>
+                    <h4 className="font-semibold mb-1">{t.nutritionFeatures.dietary.title}</h4>
+                    <p className="text-sm text-muted-foreground">{t.nutritionFeatures.dietary.desc}</p>
                   </div>
                 </div>
                 
@@ -258,8 +430,8 @@ const Index = () => {
                     <Users className="w-5 h-5 text-secondary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">Meal Planning Assistance</h4>
-                    <p className="text-sm text-muted-foreground">Help organizations plan balanced meals for their communities</p>
+                    <h4 className="font-semibold mb-1">{t.nutritionFeatures.planning.title}</h4>
+                    <p className="text-sm text-muted-foreground">{t.nutritionFeatures.planning.desc}</p>
                   </div>
                 </div>
                 
@@ -268,8 +440,8 @@ const Index = () => {
                     <AlertTriangle className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">Food Safety Guidelines</h4>
-                    <p className="text-sm text-muted-foreground">Expiry tracking and safety alerts to ensure quality</p>
+                    <h4 className="font-semibold mb-1">{t.nutritionFeatures.safety.title}</h4>
+                    <p className="text-sm text-muted-foreground">{t.nutritionFeatures.safety.desc}</p>
                   </div>
                 </div>
               </div>
@@ -278,22 +450,22 @@ const Index = () => {
             <div className="grid grid-cols-2 gap-6">
               <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
                 <div className="text-3xl font-bold text-primary mb-2">500+</div>
-                <div className="text-sm text-muted-foreground">Calories Tracked Daily</div>
+                <div className="text-sm text-muted-foreground">{t.nutritionStats.calories}</div>
               </Card>
               
               <Card className="p-6 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
                 <div className="text-3xl font-bold text-secondary mb-2">15+</div>
-                <div className="text-sm text-muted-foreground">Dietary Preferences</div>
+                <div className="text-sm text-muted-foreground">{t.nutritionStats.preferences}</div>
               </Card>
               
               <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
                 <div className="text-3xl font-bold text-accent mb-2">100%</div>
-                <div className="text-sm text-muted-foreground">Safety Compliance</div>
+                <div className="text-sm text-muted-foreground">{t.nutritionStats.safety}</div>
               </Card>
               
               <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
                 <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-                <div className="text-sm text-muted-foreground">Nutrition Support</div>
+                <div className="text-sm text-muted-foreground">{t.nutritionStats.support}</div>
               </Card>
             </div>
           </div>
@@ -304,16 +476,16 @@ const Index = () => {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-xl text-muted-foreground">Simple steps to make a big difference</p>
+            <h2 className="text-4xl font-bold mb-4">{t.howItWorks}</h2>
+            <p className="text-xl text-muted-foreground">{t.howItWorksDesc}</p>
           </div>
           
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { step: "01", title: "Sign Up", desc: "Create your account in minutes" },
-              { step: "02", title: "Post or Request", desc: "Share surplus or request food" },
-              { step: "03", title: "Get Matched", desc: "Connect with nearby partners" },
-              { step: "04", title: "Make Impact", desc: "Complete donation & track results" }
+              { step: "01", title: t.steps.signup.title, desc: t.steps.signup.desc },
+              { step: "02", title: t.steps.post.title, desc: t.steps.post.desc },
+              { step: "03", title: t.steps.match.title, desc: t.steps.match.desc },
+              { step: "04", title: t.steps.impact.title, desc: t.steps.impact.desc }
             ].map((item, index) => (
               <div key={index} className="text-center space-y-4">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-primary text-primary-foreground text-xl font-bold shadow-lg">
@@ -335,10 +507,10 @@ const Index = () => {
             
             <div className="relative text-center space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold text-white">
-                Ready to Make a Difference?
+                {t.ctaTitle}
               </h2>
               <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                Join thousands of donors and organizations working together to end food waste and hunger
+                {t.ctaDesc}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Button 
@@ -346,7 +518,7 @@ const Index = () => {
                   variant="secondary"
                   onClick={() => navigate("/signup")}
                 >
-                  Start Donating Today
+                  {t.startDonating}
                 </Button>
                 <Button 
                   size="lg" 
@@ -354,7 +526,7 @@ const Index = () => {
                   className="bg-white/10 border-white/30 text-white hover:bg-white/20"
                   onClick={() => navigate("/signup")}
                 >
-                  Register Your Organization
+                  {t.registerOrg}
                 </Button>
               </div>
             </div>
@@ -369,30 +541,30 @@ const Index = () => {
             <div className="space-y-4">
               <h3 className="text-xl font-bold gradient-primary text-gradient">EcoEatSolutions</h3>
               <p className="text-muted-foreground text-sm">
-                Transforming food waste into community sustenance across India
+                {t.footer.tagline}
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
+              <h4 className="font-semibold mb-4">{t.footer.platform}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">For Restaurants</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">For NGOs</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">For Individuals</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">{t.footer.forRestaurants}</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">{t.footer.forNGOs}</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">{t.footer.forIndividuals}</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">{t.footer.support}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Safety Guidelines</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">{t.footer.helpCenter}</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">{t.footer.safetyGuidelines}</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">{t.footer.terms}</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
+              <h4 className="font-semibold mb-4">{t.footer.contact}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
@@ -407,7 +579,7 @@ const Index = () => {
           </div>
           
           <div className="pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>© 2025 EcoEatSolutions. All rights reserved. Fighting food waste, one meal at a time.</p>
+            <p>{t.footer.copyright}</p>
           </div>
         </div>
       </footer>
