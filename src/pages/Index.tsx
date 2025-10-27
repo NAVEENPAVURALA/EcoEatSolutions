@@ -2,7 +2,9 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Heart, Users, Leaf, ArrowRight, Mail, Phone, AlertTriangle, Siren } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Heart, Users, Leaf, ArrowRight, Mail, Phone, AlertTriangle, Siren, Apple, Globe, Languages } from "lucide-react";
+import { useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
 import restaurantIcon from "@/assets/restaurant-icon.png";
 import organizationIcon from "@/assets/organization-icon.png";
@@ -10,6 +12,16 @@ import individualIcon from "@/assets/individual-icon.png";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [language, setLanguage] = useState("English");
+
+  const languages = [
+    { code: "en", name: "English" },
+    { code: "hi", name: "हिंदी (Hindi)" },
+    { code: "ta", name: "தமிழ் (Tamil)" },
+    { code: "te", name: "తెలుగు (Telugu)" },
+    { code: "bn", name: "বাংলা (Bengali)" },
+    { code: "mr", name: "मराठी (Marathi)" }
+  ];
 
   const userTypes = [
     {
@@ -40,6 +52,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Language Selector - Fixed Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2 bg-background/95 backdrop-blur shadow-lg">
+              <Languages className="w-4 h-4" />
+              <span className="hidden sm:inline">{language}</span>
+              <Globe className="w-4 h-4 sm:hidden" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 bg-background z-50">
+            {languages.map((lang) => (
+              <DropdownMenuItem
+                key={lang.code}
+                onClick={() => setLanguage(lang.name.split(" ")[0])}
+                className="cursor-pointer"
+              >
+                {lang.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
@@ -184,6 +220,82 @@ const Index = () => {
                 </div>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Nutrition Information Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/20">
+                <Apple className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-accent">Nutrition Tracking</span>
+              </div>
+              
+              <h2 className="text-4xl font-bold">
+                Complete Nutrition Information for Every Meal
+              </h2>
+              
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Track calories, nutrients, and dietary restrictions for all donated food. Our platform ensures recipients receive balanced meals while donors can showcase the nutritional value of their contributions.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start">
+                  <div className="p-2 rounded-lg bg-primary/10 mt-1">
+                    <Heart className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Dietary Restriction Filters</h4>
+                    <p className="text-sm text-muted-foreground">Vegetarian, vegan, gluten-free, and more dietary preferences</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4 items-start">
+                  <div className="p-2 rounded-lg bg-secondary/10 mt-1">
+                    <Users className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Meal Planning Assistance</h4>
+                    <p className="text-sm text-muted-foreground">Help organizations plan balanced meals for their communities</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4 items-start">
+                  <div className="p-2 rounded-lg bg-accent/10 mt-1">
+                    <AlertTriangle className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Food Safety Guidelines</h4>
+                    <p className="text-sm text-muted-foreground">Expiry tracking and safety alerts to ensure quality</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6">
+              <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                <div className="text-3xl font-bold text-primary mb-2">500+</div>
+                <div className="text-sm text-muted-foreground">Calories Tracked Daily</div>
+              </Card>
+              
+              <Card className="p-6 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+                <div className="text-3xl font-bold text-secondary mb-2">15+</div>
+                <div className="text-sm text-muted-foreground">Dietary Preferences</div>
+              </Card>
+              
+              <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+                <div className="text-3xl font-bold text-accent mb-2">100%</div>
+                <div className="text-sm text-muted-foreground">Safety Compliance</div>
+              </Card>
+              
+              <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                <div className="text-3xl font-bold text-primary mb-2">24/7</div>
+                <div className="text-sm text-muted-foreground">Nutrition Support</div>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
