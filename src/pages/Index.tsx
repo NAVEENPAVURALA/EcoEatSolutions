@@ -10,6 +10,8 @@ import heroBanner from "@/assets/hero-banner.jpg";
 import restaurantIcon from "@/assets/restaurant-icon.png";
 import organizationIcon from "@/assets/organization-icon.png";
 import individualIcon from "@/assets/individual-icon.png";
+import Chatbot from "@/components/Chatbot";
+import LocationService from "@/components/LocationService";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -694,6 +696,30 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Emergency Response & Location Section */}
+      <section className="py-20 bg-destructive/5">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-8">
+            <Alert className="border-destructive/50 bg-destructive/10">
+              <Siren className="h-5 w-5 text-destructive" />
+              <AlertTitle className="text-2xl font-bold mb-2">{t.emergencyTitle}</AlertTitle>
+              <AlertDescription className="text-lg mb-4">
+                {t.emergencyDesc}
+              </AlertDescription>
+              <Button 
+                variant="destructive" 
+                size="lg"
+                onClick={handleEmergencyMode}
+              >
+                <Siren className="mr-2 h-5 w-5" />
+                {t.activateEmergency}
+              </Button>
+            </Alert>
+            <LocationService />
+          </div>
+        </div>
+      </section>
+
       {/* User Types Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -922,6 +948,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <Chatbot />
     </div>
   );
 };
