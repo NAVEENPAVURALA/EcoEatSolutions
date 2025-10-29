@@ -12,6 +12,10 @@ import organizationIcon from "@/assets/organization-icon.png";
 import individualIcon from "@/assets/individual-icon.png";
 import Chatbot from "@/components/Chatbot";
 import LocationService from "@/components/LocationService";
+import NutritionCalculator from "@/components/NutritionCalculator";
+import CommunityChat from "@/components/CommunityChat";
+import LiveMap from "@/components/LiveMap";
+import DarkModeToggle from "@/components/DarkModeToggle";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -560,8 +564,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Language Selector - Fixed Top Right */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* Top Right Controls */}
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <DarkModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2 bg-background/95 backdrop-blur shadow-lg">
@@ -699,6 +704,11 @@ const Index = () => {
       {/* Emergency Response & Location Section */}
       <section className="py-20 bg-destructive/5">
         <div className="container mx-auto px-4">
+          {/* Nutrition Calculator */}
+          <div className="mb-16">
+            <NutritionCalculator />
+          </div>
+          
           <div className="grid lg:grid-cols-2 gap-8">
             <Alert className="border-destructive/50 bg-destructive/10">
               <Siren className="h-5 w-5 text-destructive" />
@@ -896,6 +906,20 @@ const Index = () => {
               </div>
             </div>
           </Card>
+        </div>
+      </section>
+
+      {/* Community Chat Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <CommunityChat />
+        </div>
+      </section>
+
+      {/* Live Map Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <LiveMap />
         </div>
       </section>
 

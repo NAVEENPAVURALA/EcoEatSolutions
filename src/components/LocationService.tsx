@@ -25,48 +25,61 @@ const LocationService = () => {
     };
   }, [watchId]);
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = async () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
       return;
     }
 
-    setIsLoading(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const locationData: LocationData = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          timestamp: position.timestamp,
-        };
-        setLocation(locationData);
-        setIsLoading(false);
-        toast.success("Location obtained successfully!");
-      },
-      (error) => {
-        setIsLoading(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            toast.error("Location permission denied. Please enable location access.");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            toast.error("Location information unavailable.");
-            break;
-          case error.TIMEOUT:
-            toast.error("Location request timed out.");
-            break;
-          default:
-            toast.error("An unknown error occurred.");
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+    try {
+      // Request permission first
+      const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+      
+      if (permissionStatus.state === 'denied') {
+        toast.error("Location permission denied. Please enable location access in your browser settings.");
+        return;
       }
-    );
+
+      setIsLoading(true);
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const locationData: LocationData = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: position.timestamp,
+          };
+          setLocation(locationData);
+          setIsLoading(false);
+          toast.success("Location obtained successfully!");
+        },
+        (error) => {
+          setIsLoading(false);
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              toast.error("Location permission denied. Please enable location access in your browser settings.");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              toast.error("Location information unavailable. Please check your GPS settings.");
+              break;
+            case error.TIMEOUT:
+              toast.error("Location request timed out. Please try again.");
+              break;
+            default:
+              toast.error("An unknown error occurred while getting location.");
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0,
+        }
+      );
+    } catch (error) {
+      setIsLoading(false);
+      toast.error("Failed to check location permissions");
+    }
   };
 
   const startTracking = () => {
