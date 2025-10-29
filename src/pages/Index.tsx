@@ -16,34 +16,34 @@ import NutritionCalculator from "@/components/NutritionCalculator";
 import CommunityChat from "@/components/CommunityChat";
 import LiveMap from "@/components/LiveMap";
 import DarkModeToggle from "@/components/DarkModeToggle";
-
 const Index = () => {
   const navigate = useNavigate();
   const [language, setLanguage] = useState("en");
   const [emergencyMode, setEmergencyMode] = useState(false);
-
   const handleEmergencyMode = () => {
     setEmergencyMode(true);
-    toast.success(
-      language === "hi" ? "आपातकालीन मोड सक्रिय! आपको जल्द ही पास के दानदाताओं के साथ जोड़ा जाएगा।" : 
-      language === "ta" ? "அவசர பயன்முறை செயல்படுத்தப்பட்டது! அருகிலுள்ள நன்கொடையாளர்களுடன் உங்களை விரைவில் இணைப்போம்." :
-      language === "te" ? "అత్యవసర మోడ్ ప్రారంభించబడింది! మీరు సమీపంలోని దాతలతో త్వరలో కనెక్ట్ అవుతారు." :
-      language === "bn" ? "জরুরি মোড সক্রিয়! আপনি শীঘ্রই কাছাকাছি দাতাদের সাথে সংযুক্ত হবেন।" :
-      language === "mr" ? "आपत्कालीन मोड सक्रिय! आपण लवकरच जवळच्या देणगीदारांशी जोडले जाल।" :
-      "Emergency Mode Activated! You'll be connected with nearby donors shortly."
-    );
+    toast.success(language === "hi" ? "आपातकालीन मोड सक्रिय! आपको जल्द ही पास के दानदाताओं के साथ जोड़ा जाएगा।" : language === "ta" ? "அவசர பயன்முறை செயல்படுத்தப்பட்டது! அருகிலுள்ள நன்கொடையாளர்களுடன் உங்களை விரைவில் இணைப்போம்." : language === "te" ? "అత్యవసర మోడ్ ప్రారంభించబడింది! మీరు సమీపంలోని దాతలతో త్వరలో కనెక్ట్ అవుతారు." : language === "bn" ? "জরুরি মোড সক্রিয়! আপনি শীঘ্রই কাছাকাছি দাতাদের সাথে সংযুক্ত হবেন।" : language === "mr" ? "आपत्कालीन मोड सक्रिय! आपण लवकरच जवळच्या देणगीदारांशी जोडले जाल।" : "Emergency Mode Activated! You'll be connected with nearby donors shortly.");
     setTimeout(() => navigate("/signup"), 2000);
   };
-
-  const languages = [
-    { code: "en", name: "English" },
-    { code: "hi", name: "हिंदी (Hindi)" },
-    { code: "ta", name: "தமிழ் (Tamil)" },
-    { code: "te", name: "తెలుగు (Telugu)" },
-    { code: "bn", name: "বাংলা (Bengali)" },
-    { code: "mr", name: "मराठी (Marathi)" }
-  ];
-
+  const languages = [{
+    code: "en",
+    name: "English"
+  }, {
+    code: "hi",
+    name: "हिंदी (Hindi)"
+  }, {
+    code: "ta",
+    name: "தமிழ் (Tamil)"
+  }, {
+    code: "te",
+    name: "తెలుగు (Telugu)"
+  }, {
+    code: "bn",
+    name: "বাংলা (Bengali)"
+  }, {
+    code: "mr",
+    name: "मराठी (Marathi)"
+  }];
   const translations: Record<string, any> = {
     en: {
       badge: "Fighting Food Waste Together",
@@ -103,10 +103,22 @@ const Index = () => {
       howItWorks: "How It Works",
       howItWorksDesc: "Simple steps to make a big difference",
       steps: {
-        signup: { title: "Sign Up", desc: "Create your account in minutes" },
-        post: { title: "Post or Request", desc: "Share surplus or request food" },
-        match: { title: "Get Matched", desc: "Connect with nearby partners" },
-        impact: { title: "Make Impact", desc: "Complete donation & track results" }
+        signup: {
+          title: "Sign Up",
+          desc: "Create your account in minutes"
+        },
+        post: {
+          title: "Post or Request",
+          desc: "Share surplus or request food"
+        },
+        match: {
+          title: "Get Matched",
+          desc: "Connect with nearby partners"
+        },
+        impact: {
+          title: "Make Impact",
+          desc: "Complete donation & track results"
+        }
       },
       ctaTitle: "Ready to Make a Difference?",
       ctaDesc: "Join thousands of donors and organizations working together to end food waste and hunger",
@@ -184,10 +196,22 @@ const Index = () => {
       howItWorks: "यह कैसे काम करता है",
       howItWorksDesc: "बड़ा बदलाव लाने के लिए सरल कदम",
       steps: {
-        signup: { title: "साइन अप करें", desc: "मिनटों में अपना खाता बनाएं" },
-        post: { title: "पोस्ट या अनुरोध", desc: "अधिशेष साझा करें या भोजन का अनुरोध करें" },
-        match: { title: "मैच प्राप्त करें", desc: "आस-पास के साझेदारों से कनेक्ट करें" },
-        impact: { title: "प्रभाव बनाएं", desc: "दान पूरा करें और परिणाम ट्रैक करें" }
+        signup: {
+          title: "साइन अप करें",
+          desc: "मिनटों में अपना खाता बनाएं"
+        },
+        post: {
+          title: "पोस्ट या अनुरोध",
+          desc: "अधिशेष साझा करें या भोजन का अनुरोध करें"
+        },
+        match: {
+          title: "मैच प्राप्त करें",
+          desc: "आस-पास के साझेदारों से कनेक्ट करें"
+        },
+        impact: {
+          title: "प्रभाव बनाएं",
+          desc: "दान पूरा करें और परिणाम ट्रैक करें"
+        }
       },
       ctaTitle: "बदलाव लाने के लिए तैयार हैं?",
       ctaDesc: "हजारों दानदाताओं और संगठनों के साथ जुड़ें जो खाद्य अपशिष्ट और भूख को समाप्त करने के लिए एक साथ काम कर रहे हैं",
@@ -265,10 +289,22 @@ const Index = () => {
       howItWorks: "இது எவ்வாறு செயல்படுகிறது",
       howItWorksDesc: "பெரிய மாற்றத்தை ஏற்படுத்த எளிய படிகள்",
       steps: {
-        signup: { title: "பதிவு செய்க", desc: "நிமிடங்களில் உங்கள் கணக்கை உருவாக்குங்கள்" },
-        post: { title: "இடுகை அல்லது கோரிக்கை", desc: "உபரியை பகிரவும் அல்லது உணவு கோரவும்" },
-        match: { title: "பொருத்தம் பெறுங்கள்", desc: "அருகிலுள்ள பங்காளர்களுடன் இணைக்கவும்" },
-        impact: { title: "தாக்கத்தை உருவாக்குங்கள்", desc: "நன்கொடையை முடித்து முடிவுகளை கண்காணிக்கவும்" }
+        signup: {
+          title: "பதிவு செய்க",
+          desc: "நிமிடங்களில் உங்கள் கணக்கை உருவாக்குங்கள்"
+        },
+        post: {
+          title: "இடுகை அல்லது கோரிக்கை",
+          desc: "உபரியை பகிரவும் அல்லது உணவு கோரவும்"
+        },
+        match: {
+          title: "பொருத்தம் பெறுங்கள்",
+          desc: "அருகிலுள்ள பங்காளர்களுடன் இணைக்கவும்"
+        },
+        impact: {
+          title: "தாக்கத்தை உருவாக்குங்கள்",
+          desc: "நன்கொடையை முடித்து முடிவுகளை கண்காணிக்கவும்"
+        }
       },
       ctaTitle: "மாற்றத்தை ஏற்படுத்த தயாரா?",
       ctaDesc: "உணவு கழிவுகள் மற்றும் பசியை முடிவுக்கு கொண்டு வர ஒன்றாக பணியாற்றும் ஆயிரக்கணக்கான நன்கொடையாளர்கள் மற்றும் அமைப்புகளுடன் சேரவும்",
@@ -346,10 +382,22 @@ const Index = () => {
       howItWorks: "ఇది ఎలా పనిచేస్తుంది",
       howItWorksDesc: "పెద్ద మార్పు చేయడానికి సులభమైన దశలు",
       steps: {
-        signup: { title: "సైన్ అప్ చేయండి", desc: "నిమిషాల్లో మీ ఖాతాను సృష్టించండి" },
-        post: { title: "పోస్ట్ లేదా అభ్యర్థన", desc: "మిగులును పంచుకోండి లేదా ఆహారం అభ్యర్థించండి" },
-        match: { title: "మ్యాచ్ పొందండి", desc: "సమీప భాగస్వాములతో కనెక్ట్ అవ్వండి" },
-        impact: { title: "ప్రభావం సృష్టించండి", desc: "విరాళాన్ని పూర్తి చేసి ఫలితాలను ట్రాక్ చేయండి" }
+        signup: {
+          title: "సైన్ అప్ చేయండి",
+          desc: "నిమిషాల్లో మీ ఖాతాను సృష్టించండి"
+        },
+        post: {
+          title: "పోస్ట్ లేదా అభ్యర్థన",
+          desc: "మిగులును పంచుకోండి లేదా ఆహారం అభ్యర్థించండి"
+        },
+        match: {
+          title: "మ్యాచ్ పొందండి",
+          desc: "సమీప భాగస్వాములతో కనెక్ట్ అవ్వండి"
+        },
+        impact: {
+          title: "ప్రభావం సృష్టించండి",
+          desc: "విరాళాన్ని పూర్తి చేసి ఫలితాలను ట్రాక్ చేయండి"
+        }
       },
       ctaTitle: "మార్పు తీసుకురావడానికి సిద్ధంగా ఉన్నారా?",
       ctaDesc: "ఆహార వ్యర్థాలు మరియు ఆకలిని అంతం చేయడానికి కలిసి పనిచేస్తున్న వేలాది దాతలు మరియు సంస్థలతో చేరండి",
@@ -427,10 +475,22 @@ const Index = () => {
       howItWorks: "এটি কিভাবে কাজ করে",
       howItWorksDesc: "বড় পার্থক্য তৈরি করতে সহজ পদক্ষেপ",
       steps: {
-        signup: { title: "সাইন আপ করুন", desc: "মিনিটের মধ্যে আপনার অ্যাকাউন্ট তৈরি করুন" },
-        post: { title: "পোস্ট বা অনুরোধ", desc: "উদ্বৃত্ত শেয়ার করুন বা খাবার অনুরোধ করুন" },
-        match: { title: "ম্যাচ পান", desc: "কাছাকাছি অংশীদারদের সাথে সংযুক্ত হন" },
-        impact: { title: "প্রভাব তৈরি করুন", desc: "দান সম্পূর্ণ করুন এবং ফলাফল ট্র্যাক করুন" }
+        signup: {
+          title: "সাইন আপ করুন",
+          desc: "মিনিটের মধ্যে আপনার অ্যাকাউন্ট তৈরি করুন"
+        },
+        post: {
+          title: "পোস্ট বা অনুরোধ",
+          desc: "উদ্বৃত্ত শেয়ার করুন বা খাবার অনুরোধ করুন"
+        },
+        match: {
+          title: "ম্যাচ পান",
+          desc: "কাছাকাছি অংশীদারদের সাথে সংযুক্ত হন"
+        },
+        impact: {
+          title: "প্রভাব তৈরি করুন",
+          desc: "দান সম্পূর্ণ করুন এবং ফলাফল ট্র্যাক করুন"
+        }
       },
       ctaTitle: "পরিবর্তন আনতে প্রস্তুত?",
       ctaDesc: "খাদ্য বর্জ্য এবং ক্ষুধা শেষ করতে একসাথে কাজ করা হাজার হাজার দাতা এবং সংস্থার সাথে যোগ দিন",
@@ -508,10 +568,22 @@ const Index = () => {
       howItWorks: "हे कसे कार्य करते",
       howItWorksDesc: "मोठा फरक निर्माण करण्यासाठी सोपी पायऱ्या",
       steps: {
-        signup: { title: "साइन अप करा", desc: "काही मिनिटांत आपले खाते तयार करा" },
-        post: { title: "पोस्ट किंवा विनंती", desc: "अतिरिक्त सामायिक करा किंवा अन्नाची विनंती करा" },
-        match: { title: "जुळणी मिळवा", desc: "जवळच्या भागीदारांशी कनेक्ट करा" },
-        impact: { title: "प्रभाव निर्माण करा", desc: "देणगी पूर्ण करा आणि परिणाम ट्रॅक करा" }
+        signup: {
+          title: "साइन अप करा",
+          desc: "काही मिनिटांत आपले खाते तयार करा"
+        },
+        post: {
+          title: "पोस्ट किंवा विनंती",
+          desc: "अतिरिक्त सामायिक करा किंवा अन्नाची विनंती करा"
+        },
+        match: {
+          title: "जुळणी मिळवा",
+          desc: "जवळच्या भागीदारांशी कनेक्ट करा"
+        },
+        impact: {
+          title: "प्रभाव निर्माण करा",
+          desc: "देणगी पूर्ण करा आणि परिणाम ट्रॅक करा"
+        }
       },
       ctaTitle: "बदल घडवण्यासाठी तयार आहात?",
       ctaDesc: "अन्न कचरा आणि भूक संपवण्यासाठी एकत्र काम करणाऱ्या हजारो देणगीदार आणि संस्थांसह सामील व्हा",
@@ -532,38 +604,37 @@ const Index = () => {
       }
     }
   };
-
   const t = translations[language] || translations.en;
-
-  const userTypes = [
-    {
-      icon: restaurantIcon,
-      title: "Restaurants & Hotels",
-      description: "Turn surplus food into community impact. Donate excess meals and track your positive influence.",
-      color: "from-primary to-primary-glow"
-    },
-    {
-      icon: organizationIcon,
-      title: "NGOs & Organizations",
-      description: "Access fresh, quality food donations for your community. Feed more people with less effort.",
-      color: "from-secondary to-blue-400"
-    },
-    {
-      icon: individualIcon,
-      title: "Individual Donors",
-      description: "Share home-cooked meals with neighbors in need. Every contribution creates lasting change.",
-      color: "from-accent to-orange-400"
-    }
-  ];
-
-  const stats = [
-    { number: "50K+", label: "Meals Donated", icon: Heart },
-    { number: "500+", label: "Active Partners", icon: Users },
-    { number: "10K Kg", label: "Waste Prevented", icon: Leaf }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+  const userTypes = [{
+    icon: restaurantIcon,
+    title: "Restaurants & Hotels",
+    description: "Turn surplus food into community impact. Donate excess meals and track your positive influence.",
+    color: "from-primary to-primary-glow"
+  }, {
+    icon: organizationIcon,
+    title: "NGOs & Organizations",
+    description: "Access fresh, quality food donations for your community. Feed more people with less effort.",
+    color: "from-secondary to-blue-400"
+  }, {
+    icon: individualIcon,
+    title: "Individual Donors",
+    description: "Share home-cooked meals with neighbors in need. Every contribution creates lasting change.",
+    color: "from-accent to-orange-400"
+  }];
+  const stats = [{
+    number: "50K+",
+    label: "Meals Donated",
+    icon: Heart
+  }, {
+    number: "500+",
+    label: "Active Partners",
+    icon: Users
+  }, {
+    number: "10K Kg",
+    label: "Waste Prevented",
+    icon: Leaf
+  }];
+  return <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       {/* Top Right Controls */}
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <DarkModeToggle />
@@ -576,15 +647,9 @@ const Index = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-background z-50">
-            {languages.map((lang) => (
-              <DropdownMenuItem
-                key={lang.code}
-                onClick={() => setLanguage(lang.code)}
-                className="cursor-pointer"
-              >
+            {languages.map(lang => <DropdownMenuItem key={lang.code} onClick={() => setLanguage(lang.code)} className="cursor-pointer">
                 {lang.name}
-              </DropdownMenuItem>
-            ))}
+              </DropdownMenuItem>)}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -611,18 +676,10 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg" 
-                  className="gradient-primary hover:shadow-glow"
-                  onClick={() => navigate("/signup")}
-                >
+                <Button size="lg" className="gradient-primary hover:shadow-glow" onClick={() => navigate("/signup")}>
                   {t.getStarted} <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  onClick={() => navigate("/login")}
-                >
+                <Button size="lg" variant="outline" onClick={() => navigate("/login")}>
                   {t.signIn}
                 </Button>
               </div>
@@ -630,11 +687,7 @@ const Index = () => {
             
             <div className="relative">
               <div className="absolute -inset-4 gradient-hero opacity-20 blur-3xl rounded-full" />
-              <img 
-                src={heroBanner} 
-                alt="Community sharing food" 
-                className="relative rounded-2xl shadow-2xl w-full h-auto"
-              />
+              <img src={heroBanner} alt="Community sharing food" className="relative rounded-2xl shadow-2xl w-full h-auto" />
             </div>
           </div>
         </div>
@@ -657,18 +710,10 @@ const Index = () => {
                   {t.emergencyDesc}
                 </AlertDescription>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    size="lg"
-                    className="bg-white text-accent hover:bg-white/90 font-semibold shadow-lg"
-                    onClick={handleEmergencyMode}
-                  >
+                  <Button size="lg" className="bg-white text-accent hover:bg-white/90 font-semibold shadow-lg" onClick={handleEmergencyMode}>
                     {t.activateEmergency}
                   </Button>
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-white/30 text-white hover:bg-white/10 backdrop-blur"
-                  >
+                  <Button size="lg" variant="outline" className="border-white/30 backdrop-blur bg-slate-50 font-bold text-base text-orange-600">
                     {t.learnMore}
                   </Button>
                 </div>
@@ -682,8 +727,7 @@ const Index = () => {
       <section className="relative pb-20">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-6">
-            {stats.map((stat, index) => (
-              <Card key={index} className="p-8 bg-card/80 backdrop-blur border-primary/10 hover:border-primary/30 transition-all">
+            {stats.map((stat, index) => <Card key={index} className="p-8 bg-card/80 backdrop-blur border-primary/10 hover:border-primary/30 transition-all">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-primary/10">
                     <stat.icon className="w-6 h-6 text-primary" />
@@ -695,8 +739,7 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -716,11 +759,7 @@ const Index = () => {
               <AlertDescription className="text-lg mb-4">
                 {t.emergencyDesc}
               </AlertDescription>
-              <Button 
-                variant="destructive" 
-                size="lg"
-                onClick={handleEmergencyMode}
-              >
+              <Button variant="destructive" size="lg" onClick={handleEmergencyMode}>
                 <Siren className="mr-2 h-5 w-5" />
                 {t.activateEmergency}
               </Button>
@@ -741,12 +780,7 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {userTypes.map((type, index) => (
-              <Card 
-                key={index} 
-                className="group relative overflow-hidden p-8 border-2 hover:border-primary/50 transition-all hover:shadow-xl cursor-pointer"
-                onClick={() => navigate("/signup")}
-              >
+            {userTypes.map((type, index) => <Card key={index} className="group relative overflow-hidden p-8 border-2 hover:border-primary/50 transition-all hover:shadow-xl cursor-pointer" onClick={() => navigate("/signup")}>
                 <div className={`absolute inset-0 bg-gradient-to-br ${type.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
                 
                 <div className="relative space-y-4">
@@ -765,8 +799,7 @@ const Index = () => {
                     {t.learnMore} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -856,20 +889,29 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-4 gap-8">
-            {[
-              { step: "01", title: t.steps.signup.title, desc: t.steps.signup.desc },
-              { step: "02", title: t.steps.post.title, desc: t.steps.post.desc },
-              { step: "03", title: t.steps.match.title, desc: t.steps.match.desc },
-              { step: "04", title: t.steps.impact.title, desc: t.steps.impact.desc }
-            ].map((item, index) => (
-              <div key={index} className="text-center space-y-4">
+            {[{
+            step: "01",
+            title: t.steps.signup.title,
+            desc: t.steps.signup.desc
+          }, {
+            step: "02",
+            title: t.steps.post.title,
+            desc: t.steps.post.desc
+          }, {
+            step: "03",
+            title: t.steps.match.title,
+            desc: t.steps.match.desc
+          }, {
+            step: "04",
+            title: t.steps.impact.title,
+            desc: t.steps.impact.desc
+          }].map((item, index) => <div key={index} className="text-center space-y-4">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-primary text-primary-foreground text-xl font-bold shadow-lg">
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold">{item.title}</h3>
                 <p className="text-muted-foreground">{item.desc}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -888,19 +930,10 @@ const Index = () => {
                 {t.ctaDesc}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button 
-                  size="lg" 
-                  variant="secondary"
-                  onClick={() => navigate("/signup")}
-                >
+                <Button size="lg" variant="secondary" onClick={() => navigate("/signup")}>
                   {t.startDonating}
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-                  onClick={() => navigate("/signup")}
-                >
+                <Button size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20" onClick={() => navigate("/signup")}>
                   {t.registerOrg}
                 </Button>
               </div>
@@ -974,8 +1007,6 @@ const Index = () => {
       </footer>
 
       <Chatbot />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
