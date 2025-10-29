@@ -635,27 +635,59 @@ const Index = () => {
     icon: Leaf
   }];
   return <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Top Right Controls */}
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <DarkModeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 bg-background/95 backdrop-blur shadow-lg">
-              <Languages className="w-4 h-4" />
-              <span className="hidden sm:inline">{languages.find(l => l.code === language)?.name.split(" ")[0]}</span>
-              <Globe className="w-4 h-4 sm:hidden" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 bg-background z-50">
-            {languages.map(lang => <DropdownMenuItem key={lang.code} onClick={() => setLanguage(lang.code)} className="cursor-pointer">
-                {lang.name}
-              </DropdownMenuItem>)}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      {/* Top Navigation Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b shadow-sm">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <Leaf className="w-6 h-6 text-primary" />
+              <span className="font-bold text-lg hidden sm:inline">EcoEatSolutions</span>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <Button 
+                size="sm" 
+                className="gradient-primary gap-2 shadow-lg"
+                onClick={() => navigate("/donate/post")}
+              >
+                <Heart className="w-4 h-4" />
+                <span className="hidden sm:inline">Donate Food</span>
+                <span className="sm:hidden">Donate</span>
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="gap-2 shadow-lg"
+                onClick={() => navigate("/browse")}
+              >
+                <Users className="w-4 h-4" />
+                <span className="hidden sm:inline">Receive Food</span>
+                <span className="sm:hidden">Receive</span>
+              </Button>
+              <DarkModeToggle />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2 bg-background/95 backdrop-blur shadow-lg">
+                    <Languages className="w-4 h-4" />
+                    <span className="hidden sm:inline">{languages.find(l => l.code === language)?.name.split(" ")[0]}</span>
+                    <Globe className="w-4 h-4 sm:hidden" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-background z-50">
+                  {languages.map(lang => <DropdownMenuItem key={lang.code} onClick={() => setLanguage(lang.code)} className="cursor-pointer">
+                      {lang.name}
+                    </DropdownMenuItem>)}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden pt-16">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
         
         <div className="container relative mx-auto px-4 pt-20 pb-32">

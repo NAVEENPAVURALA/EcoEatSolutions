@@ -38,6 +38,51 @@ export type Database = {
         }
         Relationships: []
       }
+      donations: {
+        Row: {
+          available_until: string
+          contact_phone: string | null
+          created_at: string
+          description: string
+          food_type: string
+          id: string
+          pickup_location: string
+          quantity: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_until: string
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          food_type: string
+          id?: string
+          pickup_location: string
+          quantity: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_until?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          food_type?: string
+          id?: string
+          pickup_location?: string
+          quantity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       live_locations: {
         Row: {
           created_at: string | null
