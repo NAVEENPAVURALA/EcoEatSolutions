@@ -44,7 +44,7 @@ export const EmergencyMode = () => {
           Emergency Mode
         </CardTitle>
         <CardDescription>
-          Activate to send urgent SMS alerts to all registered donors and organizations
+          Activate to send urgent email alerts to all registered donors and organizations
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -58,7 +58,7 @@ export const EmergencyMode = () => {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will send an SMS alert to all registered phone numbers including donors,
+                This will send an email alert to all registered users including donors,
                 NGOs, and receivers. Only use this for genuine emergencies requiring immediate
                 food distribution.
               </AlertDialogDescription>

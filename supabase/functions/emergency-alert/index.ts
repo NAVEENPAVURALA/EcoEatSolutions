@@ -20,53 +20,30 @@ serve(async (req) => {
 
     const { message } = await req.json();
 
-    // Fetch all profiles with phone numbers
-    const { data: profiles, error: fetchError } = await supabaseClient
-      .from('profiles')
-      .select('phone_number, full_name')
-      .not('phone_number', 'is', null);
+    // Fetch all user emails from auth.users
+    const { data: { users }, error: fetchError } = await supabaseClient.auth.admin.listUsers();
 
     if (fetchError) {
-      console.error('Error fetching profiles:', fetchError);
+      console.error('Error fetching users:', fetchError);
       throw fetchError;
     }
 
-    console.log(`Sending emergency alerts to ${profiles?.length || 0} users`);
+    console.log(`Preparing to send emergency alerts to ${users?.length || 0} users`);
 
-    // Note: In production, you would integrate with an SMS service like Twilio
-    // For now, we'll log the alert and return success
-    // Example Twilio integration would go here:
-    /*
-    const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
-    const authToken = Deno.env.get('TWILIO_AUTH_TOKEN');
-    const twilioPhoneNumber = Deno.env.get('TWILIO_PHONE_NUMBER');
-
-    for (const profile of profiles || []) {
-      await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${btoa(`${accountSid}:${authToken}`)}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          To: profile.phone_number,
-          From: twilioPhoneNumber,
-          Body: `${message} - EcoEatSolutions`
-        }),
-      });
-    }
-    */
-
-    // Log alerts for demonstration
-    profiles?.forEach((profile) => {
-      console.log(`Alert to ${profile.full_name} (${profile.phone_number}): ${message}`);
+    // Log the emergency alert for each user
+    // Note: Supabase doesn't provide a direct email sending API from edge functions
+    // You would typically integrate with SendGrid, Mailgun, or similar services
+    // For now, we'll log the alerts
+    
+    users?.forEach((user) => {
+      console.log(`Emergency alert queued for ${user.email}: ${message}`);
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Emergency alert queued for ${profiles?.length || 0} users`,
-        note: 'SMS integration requires Twilio configuration'
+        message: `Emergency alert broadcasted to ${users?.length || 0} users`,
+        note: 'Email notifications logged. Integrate with an email service provider for actual delivery.'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

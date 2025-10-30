@@ -122,40 +122,13 @@ export type Database = {
         }
         Relationships: []
       }
-      otp_verifications: {
-        Row: {
-          created_at: string
-          expires_at: string
-          id: string
-          otp_code: string
-          phone_number: string
-          verified: boolean | null
-        }
-        Insert: {
-          created_at?: string
-          expires_at: string
-          id?: string
-          otp_code: string
-          phone_number: string
-          verified?: boolean | null
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          otp_code?: string
-          phone_number?: string
-          verified?: boolean | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           created_at: string
           full_name: string
           id: string
           organization_name: string | null
-          phone_number: string
+          phone_number: string | null
           updated_at: string
           user_type: string
         }
@@ -164,7 +137,7 @@ export type Database = {
           full_name: string
           id: string
           organization_name?: string | null
-          phone_number: string
+          phone_number?: string | null
           updated_at?: string
           user_type: string
         }
@@ -173,7 +146,7 @@ export type Database = {
           full_name?: string
           id?: string
           organization_name?: string | null
-          phone_number?: string
+          phone_number?: string | null
           updated_at?: string
           user_type?: string
         }
@@ -184,7 +157,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_otps: { Args: never; Returns: undefined }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

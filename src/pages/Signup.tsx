@@ -4,11 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Leaf, Mail, Lock, User, Building2, Heart, ArrowLeft, Phone } from "lucide-react";
+import { Leaf, Mail, Lock, User, Building2, Heart, ArrowLeft } from "lucide-react";
 
 type UserType = "restaurant" | "organization" | "individual";
 
@@ -19,60 +18,14 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [organizationName, setOrganizationName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [verifying, setVerifying] = useState(false);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumber || phoneNumber.length < 10) {
-      toast.error("Please enter a valid phone number");
-      return;
-    }
-    
     setLoading(true);
+
     try {
-      // Format phone number with country code if not present
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-      
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
-
-      if (error) throw error;
-
-      toast.success("OTP sent to your phone!");
-      setOtpSent(true);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send OTP");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) {
-      toast.error("Please enter a valid 6-digit OTP");
-      return;
-    }
-
-    setVerifying(true);
-    try {
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-      
-      const { error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: otp,
-        type: 'sms'
-      });
-
-      if (error) throw error;
-
-      // Now complete the signup with email/password
-      const { error: signupError } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -81,19 +34,18 @@ const Signup = () => {
             full_name: fullName,
             user_type: userType,
             organization_name: userType !== "individual" ? organizationName : null,
-            phone_number: formattedPhone,
           },
         },
       });
 
-      if (signupError) throw signupError;
+      if (error) throw error;
 
       toast.success("Account created successfully! Redirecting...");
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Failed to verify OTP");
+      toast.error(error.message || "Failed to create account");
     } finally {
-      setVerifying(false);
+      setLoading(false);
     }
   };
 
@@ -144,8 +96,7 @@ const Signup = () => {
           </CardHeader>
           
           <CardContent>
-            {!otpSent ? (
-              <form onSubmit={handleSendOtp} className="space-y-6">
+            <form onSubmit={handleSignup} className="space-y-6">
               {/* User Type Selection */}
               <div className="space-y-3">
                 <Label className="text-base font-semibold">I am a...</Label>
@@ -210,7 +161,10 @@ const Signup = () => {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -223,7 +177,10 @@ const Signup = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Password
+                  </Label>
                   <Input
                     id="password"
                     type="password"
@@ -238,25 +195,6 @@ const Signup = () => {
                     Minimum 6 characters
                   </p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+91 XXXXXXXXXX"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    required
-                    className="h-11"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    We'll send you an OTP to verify your phone number
-                  </p>
-                </div>
               </div>
 
               <Button
@@ -265,56 +203,9 @@ const Signup = () => {
                 size="lg"
                 disabled={loading}
               >
-                {loading ? "Sending OTP..." : "Send OTP"}
+                {loading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="otp">Enter OTP</Label>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    We sent a 6-digit code to {phoneNumber}
-                  </p>
-                  <div className="flex justify-center">
-                    <InputOTP
-                      maxLength={6}
-                      value={otp}
-                      onChange={(value) => setOtp(value)}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full gradient-primary"
-                  size="lg"
-                  disabled={verifying}
-                >
-                  {verifying ? "Verifying..." : "Verify & Create Account"}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => {
-                    setOtpSent(false);
-                    setOtp("");
-                  }}
-                >
-                  Change Phone Number
-                </Button>
-              </form>
-            )}
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
