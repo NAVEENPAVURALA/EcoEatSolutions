@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { LogOut, Plus, Heart, TrendingUp, Users, Leaf } from "lucide-react";
+import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+import { BackToHomeButton } from "@/components/BackToHomeButton";
+import { EmergencyMode } from "@/components/EmergencyMode";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -101,6 +103,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
+      <BackToHomeButton />
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -185,6 +188,11 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Emergency Mode - Admin Only */}
+          {userType === "organization" && (
+            <EmergencyMode />
+          )}
 
           {/* Impact Summary */}
           <Card className="gradient-hero text-white">

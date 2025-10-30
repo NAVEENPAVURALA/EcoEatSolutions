@@ -9,11 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Heart, Calendar, MapPin, Phone, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { BackToHomeButton } from "@/components/BackToHomeButton";
+import { ReceiptGenerator } from "@/components/ReceiptGenerator";
 
 const Donate = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState<any>(null);
+  const [donorName, setDonorName] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -33,6 +38,7 @@ const Donate = () => {
         navigate("/login");
       } else {
         setIsAuthenticated(true);
+        setDonorName(session.user.user_metadata.full_name || "Donor");
       }
     });
   }, [navigate]);
@@ -61,8 +67,20 @@ const Donate = () => {
 
       if (error) throw error;
 
+      // Generate receipt data
+      const receipt = {
+        donorName: donorName,
+        donationType: formData.food_type,
+        quantity: formData.quantity,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        location: formData.pickup_location,
+        receiptId: `DN-${Date.now()}`,
+      };
+      
+      setReceiptData(receipt);
+      setShowReceipt(true);
       toast.success("Donation posted successfully!");
-      navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Failed to post donation");
     } finally {
@@ -80,6 +98,7 @@ const Donate = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
+      <BackToHomeButton />
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -217,6 +236,56 @@ const Donate = () => {
             </form>
           </CardContent>
         </Card>
+
+        {/* Receipt Display */}
+        {showReceipt && receiptData && (
+          <Card className="mt-6 border-2 border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Donation Receipt</span>
+                <ReceiptGenerator data={receiptData} />
+              </CardTitle>
+              <CardDescription>
+                Your donation has been recorded successfully
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Donor</p>
+                  <p className="font-semibold">{receiptData.donorName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Receipt ID</p>
+                  <p className="font-mono text-sm">{receiptData.receiptId}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Food Type</p>
+                  <p className="font-semibold capitalize">{receiptData.donationType}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Quantity</p>
+                  <p className="font-semibold">{receiptData.quantity}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Date</p>
+                  <p className="font-semibold">{receiptData.date}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Time</p>
+                  <p className="font-semibold">{receiptData.time}</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate("/dashboard")}
+              >
+                Go to Dashboard
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

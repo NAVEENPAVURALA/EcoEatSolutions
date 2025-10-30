@@ -1,1 +1,7 @@
 project_id = "jmagbfwgcrmflhmqxozk"
+
+[functions.chat]
+verify_jwt = false
+
+[functions.emergency-alert]
+verify_jwt = true
