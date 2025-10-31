@@ -29,6 +29,9 @@ const Donate = () => {
     available_until: "",
     contact_phone: "",
   });
+  const [quantityValue, setQuantityValue] = useState("");
+  const [quantityUnit, setQuantityUnit] = useState("kg");
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -43,6 +46,40 @@ const Donate = () => {
     });
   }, [navigate]);
 
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          // Use reverse geocoding to get address
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await response.json();
+          const address = data.display_name || `${latitude}, ${longitude}`;
+          setFormData({ ...formData, pickup_location: address });
+          toast.success("Location detected successfully!");
+        } catch (error) {
+          toast.error("Failed to get address. Using coordinates.");
+          const { latitude, longitude } = position.coords;
+          setFormData({ ...formData, pickup_location: `${latitude}, ${longitude}` });
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (error) => {
+        toast.error("Failed to detect location. Please enter manually.");
+        setDetectingLocation(false);
+      }
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -53,12 +90,15 @@ const Donate = () => {
         throw new Error("Not authenticated");
       }
 
+      // Combine quantity value and unit
+      const fullQuantity = `${quantityValue} ${quantityUnit}`;
+
       const { error } = await supabase.from("donations").insert({
         user_id: session.user.id,
         title: formData.title,
         description: formData.description,
         food_type: formData.food_type,
-        quantity: formData.quantity,
+        quantity: fullQuantity,
         pickup_location: formData.pickup_location,
         available_until: formData.available_until,
         contact_phone: formData.contact_phone,
@@ -71,7 +111,7 @@ const Donate = () => {
       const receipt = {
         donorName: donorName,
         donationType: formData.food_type,
-        quantity: formData.quantity,
+        quantity: fullQuantity,
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString(),
         location: formData.pickup_location,
@@ -171,13 +211,35 @@ const Donate = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Quantity</Label>
-                  <Input
-                    id="quantity"
-                    placeholder="e.g., 50 servings, 10 kg"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="quantity"
+                      type="number"
+                      placeholder="Enter amount"
+                      value={quantityValue}
+                      onChange={(e) => setQuantityValue(e.target.value)}
+                      required
+                      className="flex-1"
+                    />
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        variant={quantityUnit === "kg" ? "default" : "outline"}
+                        onClick={() => setQuantityUnit("kg")}
+                        className="px-4"
+                      >
+                        kg
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={quantityUnit === "gm" ? "default" : "outline"}
+                        onClick={() => setQuantityUnit("gm")}
+                        className="px-4"
+                      >
+                        gm
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -186,13 +248,26 @@ const Donate = () => {
                   <MapPin className="w-4 h-4" />
                   Pickup Location
                 </Label>
-                <Input
-                  id="pickup_location"
-                  placeholder="Enter full address"
-                  value={formData.pickup_location}
-                  onChange={(e) => setFormData({ ...formData, pickup_location: e.target.value })}
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="pickup_location"
+                    placeholder="Enter full address"
+                    value={formData.pickup_location}
+                    onChange={(e) => setFormData({ ...formData, pickup_location: e.target.value })}
+                    required
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleDetectLocation}
+                    disabled={detectingLocation}
+                    className="whitespace-nowrap"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {detectingLocation ? "Detecting..." : "Detect"}
+                  </Button>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">

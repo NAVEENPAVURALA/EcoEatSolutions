@@ -41,6 +41,8 @@ export type Database = {
       donations: {
         Row: {
           available_until: string
+          collected_at: string | null
+          collected_by: string | null
           contact_phone: string | null
           created_at: string
           description: string
@@ -55,6 +57,8 @@ export type Database = {
         }
         Insert: {
           available_until: string
+          collected_at?: string | null
+          collected_by?: string | null
           contact_phone?: string | null
           created_at?: string
           description: string
@@ -69,6 +73,8 @@ export type Database = {
         }
         Update: {
           available_until?: string
+          collected_at?: string | null
+          collected_by?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string
@@ -157,7 +163,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_old_chat_messages: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

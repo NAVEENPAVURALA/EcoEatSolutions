@@ -24,6 +24,17 @@ const CommunityChat = () => {
     checkUser();
     fetchMessages();
     setupRealtimeSubscription();
+    
+    // Set up periodic cleanup of old messages (every 5 minutes)
+    const cleanupInterval = setInterval(async () => {
+      try {
+        await supabase.rpc('delete_old_chat_messages');
+      } catch (error) {
+        console.error("Error cleaning up old messages:", error);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(cleanupInterval);
   }, []);
 
   useEffect(() => {

@@ -15,6 +15,13 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
+  const [stats, setStats] = useState({
+    donations: 0,
+    meals: 0,
+    impact: 0,
+    co2Saved: 0,
+    peopleHelped: 0
+  });
 
   useEffect(() => {
     // Check current session
@@ -23,6 +30,7 @@ const Dashboard = () => {
       if (session) {
         setUserType(session.user.user_metadata.user_type || "individual");
         setFullName(session.user.user_metadata.full_name || "User");
+        fetchUserStats(session.user.id);
       } else {
         navigate("/login");
       }
@@ -41,6 +49,51 @@ const Dashboard = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const fetchUserStats = async (userId: string) => {
+    try {
+      // Get total donations count
+      const { count: donationsCount } = await supabase
+        .from("donations")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
+
+      // Get all donations to calculate meals and impact
+      const { data: donations } = await supabase
+        .from("donations")
+        .select("quantity")
+        .eq("user_id", userId);
+
+      // Calculate meals (rough estimate: 1kg = 4 meals)
+      let totalMeals = 0;
+      donations?.forEach((donation) => {
+        const quantityStr = donation.quantity.toLowerCase();
+        const match = quantityStr.match(/(\d+\.?\d*)/);
+        if (match) {
+          const amount = parseFloat(match[1]);
+          if (quantityStr.includes("kg")) {
+            totalMeals += amount * 4;
+          } else if (quantityStr.includes("gm") || quantityStr.includes("g")) {
+            totalMeals += (amount / 1000) * 4;
+          }
+        }
+      });
+
+      // Calculate CO2 saved (rough estimate: 1kg food = 2.5kg CO2)
+      const co2Saved = Math.round((totalMeals / 4) * 2.5);
+      const peopleHelped = Math.round(totalMeals / 3); // Assuming 3 meals per person
+
+      setStats({
+        donations: donationsCount || 0,
+        meals: Math.round(totalMeals),
+        impact: donationsCount || 0,
+        co2Saved,
+        peopleHelped
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -62,9 +115,9 @@ const Dashboard = () => {
         return {
           title: "Restaurant Dashboard",
           stats: [
-            { label: "Total Donations", value: "0", icon: Heart, color: "text-primary" },
-            { label: "Meals Donated", value: "0", icon: TrendingUp, color: "text-secondary" },
-            { label: "Impact Score", value: "0", icon: Leaf, color: "text-accent" }
+            { label: "Total Donations", value: stats.donations.toString(), icon: Heart, color: "text-primary" },
+            { label: "Meals Donated", value: stats.meals.toString(), icon: TrendingUp, color: "text-secondary" },
+            { label: "Impact Score", value: stats.impact.toString(), icon: Leaf, color: "text-accent" }
           ],
           quickActions: [
             { label: "Post New Donation", action: () => navigate("/donate/post"), variant: "default" as const }
@@ -75,8 +128,8 @@ const Dashboard = () => {
           title: "Organization Dashboard",
           stats: [
             { label: "Active Requests", value: "0", icon: Heart, color: "text-primary" },
-            { label: "Received Donations", value: "0", icon: TrendingUp, color: "text-secondary" },
-            { label: "People Fed", value: "0", icon: Users, color: "text-accent" }
+            { label: "Received Donations", value: stats.donations.toString(), icon: TrendingUp, color: "text-secondary" },
+            { label: "People Fed", value: stats.peopleHelped.toString(), icon: Users, color: "text-accent" }
           ],
           quickActions: [
             { label: "Browse Donations", action: () => navigate("/browse"), variant: "default" as const },
@@ -87,9 +140,9 @@ const Dashboard = () => {
         return {
           title: "Individual Dashboard",
           stats: [
-            { label: "Donations Made", value: "0", icon: Heart, color: "text-primary" },
-            { label: "Meals Shared", value: "0", icon: TrendingUp, color: "text-secondary" },
-            { label: "Community Impact", value: "0", icon: Leaf, color: "text-accent" }
+            { label: "Donations Made", value: stats.donations.toString(), icon: Heart, color: "text-primary" },
+            { label: "Meals Shared", value: stats.meals.toString(), icon: TrendingUp, color: "text-secondary" },
+            { label: "Community Impact", value: stats.impact.toString(), icon: Leaf, color: "text-accent" }
           ],
           quickActions: [
             { label: "Donate Food", action: () => navigate("/donate/post"), variant: "default" as const },
@@ -206,11 +259,11 @@ const Dashboard = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <div className="text-sm opacity-90">Environmental Impact</div>
-                  <div className="text-2xl font-bold mt-1">0 kg CO₂ saved</div>
+                  <div className="text-2xl font-bold mt-1">{stats.co2Saved} kg CO₂ saved</div>
                 </div>
                 <div>
                   <div className="text-sm opacity-90">Community Reach</div>
-                  <div className="text-2xl font-bold mt-1">0 people helped</div>
+                  <div className="text-2xl font-bold mt-1">{stats.peopleHelped} people helped</div>
                 </div>
               </div>
               <p className="text-sm opacity-80 pt-4">

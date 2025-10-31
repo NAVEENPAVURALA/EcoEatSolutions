@@ -25,10 +25,22 @@ const Browse = () => {
   const navigate = useNavigate();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [collectingId, setCollectingId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    checkAuth();
     fetchDonations();
   }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      setIsAuthenticated(true);
+      setUserId(session.user.id);
+    }
+  };
 
   const fetchDonations = async () => {
     try {
@@ -44,6 +56,38 @@ const Browse = () => {
       toast.error("Failed to load donations");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCollectDonation = async (donationId: string) => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to collect donations");
+      navigate("/login");
+      return;
+    }
+
+    setCollectingId(donationId);
+    try {
+      const { error } = await supabase
+        .from("donations")
+        .update({
+          status: "collected",
+          collected_by: userId,
+          collected_at: new Date().toISOString()
+        })
+        .eq("id", donationId);
+
+      if (error) throw error;
+
+      toast.success("Donation collected successfully!");
+      
+      // Remove from local state
+      setDonations(donations.filter(d => d.id !== donationId));
+    } catch (error: any) {
+      toast.error("Failed to collect donation");
+      console.error("Error:", error);
+    } finally {
+      setCollectingId(null);
     }
   };
 
@@ -136,9 +180,18 @@ const Browse = () => {
                     </div>
                   )}
 
-                  <Button className="w-full gradient-primary mt-4">
-                    Contact Donor
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      className="flex-1 gradient-primary" 
+                      onClick={() => handleCollectDonation(donation.id)}
+                      disabled={collectingId === donation.id}
+                    >
+                      {collectingId === donation.id ? "Collecting..." : "Collect Donation"}
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      Contact Donor
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

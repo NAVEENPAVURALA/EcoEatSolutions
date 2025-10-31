@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Heart, Users, Leaf, ArrowRight, Mail, Phone, AlertTriangle, Siren, Apple, Globe, Languages } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import heroBanner from "@/assets/hero-banner.jpg";
 import restaurantIcon from "@/assets/restaurant-icon.png";
@@ -20,6 +20,16 @@ const Index = () => {
   const navigate = useNavigate();
   const [language, setLanguage] = useState("en");
   const [emergencyMode, setEmergencyMode] = useState(false);
+  
+  useEffect(() => {
+    // Prevent auto-scroll on page load
+    window.scrollTo(0, 0);
+    
+    // Disable browser's scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
   const handleEmergencyMode = () => {
     setEmergencyMode(true);
     toast.success(language === "hi" ? "आपातकालीन मोड सक्रिय! आपको जल्द ही पास के दानदाताओं के साथ जोड़ा जाएगा।" : language === "ta" ? "அவசர பயன்முறை செயல்படுத்தப்பட்டது! அருகிலுள்ள நன்கொடையாளர்களுடன் உங்களை விரைவில் இணைப்போம்." : language === "te" ? "అత్యవసర మోడ్ ప్రారంభించబడింది! మీరు సమీపంలోని దాతలతో త్వరలో కనెక్ట్ అవుతారు." : language === "bn" ? "জরুরি মোড সক্রিয়! আপনি শীঘ্রই কাছাকাছি দাতাদের সাথে সংযুক্ত হবেন।" : language === "mr" ? "आपत्कालीन मोड सक्रिय! आपण लवकरच जवळच्या देणगीदारांशी जोडले जाल।" : "Emergency Mode Activated! You'll be connected with nearby donors shortly.");
