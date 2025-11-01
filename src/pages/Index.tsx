@@ -1,73 +1,110 @@
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Heart, Users, Leaf, ArrowRight, Mail, Phone, AlertTriangle, Siren, Apple, Globe, Languages } from "lucide-react";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Heart, TrendingUp, MapPin, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { LiveMap } from "@/components/LiveMap";
+import { CommunityChat } from "@/components/CommunityChat";
+import { RecentDonations } from "@/components/RecentDonations";
 import heroBanner from "@/assets/hero-banner.jpg";
-import restaurantIcon from "@/assets/restaurant-icon.png";
-import organizationIcon from "@/assets/organization-icon.png";
-import individualIcon from "@/assets/individual-icon.png";
-import Chatbot from "@/components/Chatbot";
-import LocationService from "@/components/LocationService";
-import NutritionCalculator from "@/components/NutritionCalculator";
-import CommunityChat from "@/components/CommunityChat";
-import LiveMap from "@/components/LiveMap";
-import DarkModeToggle from "@/components/DarkModeToggle";
+
 const Index = () => {
-  const navigate = useNavigate();
-  const [language, setLanguage] = useState("en");
-  const [emergencyMode, setEmergencyMode] = useState(false);
-  
+  const topRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    // Prevent auto-scroll on page load
-    window.scrollTo(0, 0);
-    
-    // Disable browser's scroll restoration
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    // Force scroll to top on mount and prevent auto-scrolling
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    window.history.scrollRestoration = 'manual';
+    
+    // Additional safeguard
+    const preventScroll = () => window.scrollTo(0, 0);
+    window.addEventListener('scroll', preventScroll);
+    
+    setTimeout(() => {
+      window.removeEventListener('scroll', preventScroll);
+    }, 100);
+    
+    return () => {
+      window.removeEventListener('scroll', preventScroll);
+    };
   }, []);
-  const handleEmergencyMode = () => {
-    setEmergencyMode(true);
-    toast.success(language === "hi" ? "आपातकालीन मोड सक्रिय! आपको जल्द ही पास के दानदाताओं के साथ जोड़ा जाएगा।" : language === "ta" ? "அவசர பயன்முறை செயல்படுத்தப்பட்டது! அருகிலுள்ள நன்கொடையாளர்களுடன் உங்களை விரைவில் இணைப்போம்." : language === "te" ? "అత్యవసర మోడ్ ప్రారంభించబడింది! మీరు సమీపంలోని దాతలతో త్వరలో కనెక్ట్ అవుతారు." : language === "bn" ? "জরুরি মোড সক্রিয়! আপনি শীঘ্রই কাছাকাছি দাতাদের সাথে সংযুক্ত হবেন।" : language === "mr" ? "आपत्कालीन मोड सक्रिय! आपण लवकरच जवळच्या देणगीदारांशी जोडले जाल।" : "Emergency Mode Activated! You'll be connected with nearby donors shortly.");
-    setTimeout(() => navigate("/signup"), 2000);
-  };
-  const languages = [{
-    code: "en",
-    name: "English"
-  }, {
-    code: "hi",
-    name: "हिंदी (Hindi)"
-  }, {
-    code: "ta",
-    name: "தமிழ் (Tamil)"
-  }, {
-    code: "te",
-    name: "తెలుగు (Telugu)"
-  }, {
-    code: "bn",
-    name: "বাংলা (Bengali)"
-  }, {
-    code: "mr",
-    name: "मराठी (Marathi)"
-  }];
-  const translations: Record<string, any> = {
-    en: {
-      badge: "Fighting Food Waste Together",
-      heroTitle1: "Transform Surplus into",
-      heroTitle2: "Sustenance",
-      heroDesc: "Join India's largest food redistribution network. Connect donors with communities in need, eliminate waste, and create meaningful impact—one meal at a time.",
-      getStarted: "Get Started",
-      signIn: "Sign In",
-      stats: {
-        meals: "Meals Donated",
-        partners: "Active Partners",
-        waste: "Waste Prevented"
-      },
-      whoWeServe: "Who We Serve",
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">Food Share</h1>
+            <div className="flex items-center gap-4">
+              <DarkModeToggle />
+              <Link to="/login">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link to="/signup">
+                <Button className="gradient-primary">Get Started</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative min-h-[80vh] flex items-center">
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url(${heroBanner})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="max-w-3xl">
+            <div className="inline-block mb-4 px-4 py-2 bg-primary/20 backdrop-blur-sm rounded-full">
+              <span className="text-primary-foreground text-sm font-semibold">
+                Fighting Food Waste Together
+              </span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+              Transform Surplus into <span className="text-primary">Sustenance</span>
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-gray-200 mb-8">
+              Join India's largest food redistribution network. Connect donors with communities in need,
+              eliminate waste, and create meaningful impact—one meal at a time.
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <Link to="/signup">
+                <Button size="lg" className="gradient-primary text-lg">
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/browse">
+                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20">
+                  Browse Donations
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Donations - Live Feed */}
+      <RecentDonations />
+
+      {/* Features */}
+      <section className="py-16 px-4">
       whoWeServeDesc: "EcoEatSolutions brings together everyone in the food ecosystem to create sustainable impact",
       userTypes: {
         restaurant: {
