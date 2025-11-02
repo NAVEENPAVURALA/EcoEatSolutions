@@ -19,6 +19,7 @@ interface Donation {
   contact_phone: string | null;
   status: string;
   created_at: string;
+  user_id: string;
 }
 
 const Browse = () => {
@@ -68,6 +69,8 @@ const Browse = () => {
 
     setCollectingId(donationId);
     try {
+      const donation = donations.find(d => d.id === donationId);
+      
       const { error } = await supabase
         .from("donations")
         .update({
@@ -80,8 +83,6 @@ const Browse = () => {
       if (error) throw error;
 
       toast.success("Donation collected successfully!");
-      
-      // Remove from local state
       setDonations(donations.filter(d => d.id !== donationId));
     } catch (error: any) {
       toast.error("Failed to collect donation");
@@ -182,7 +183,7 @@ const Browse = () => {
 
                   <div className="flex gap-2 mt-4">
                     <Button 
-                      className="flex-1 gradient-primary" 
+                      className="flex-1 bg-primary hover:bg-primary/90" 
                       onClick={() => handleCollectDonation(donation.id)}
                       disabled={collectingId === donation.id}
                     >

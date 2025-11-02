@@ -107,6 +107,27 @@ const Donate = () => {
 
       if (error) throw error;
 
+      // Send donation confirmation email
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.email) {
+          await supabase.functions.invoke('donation-confirmation', {
+            body: {
+              donorEmail: user.email,
+              donorName: donorName,
+              title: formData.title,
+              foodType: formData.food_type,
+              quantity: fullQuantity,
+              pickupLocation: formData.pickup_location,
+              availableUntil: formData.available_until
+            }
+          });
+        }
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't block the donation if email fails
+      }
+
       // Generate receipt data
       const receipt = {
         donorName: donorName,
