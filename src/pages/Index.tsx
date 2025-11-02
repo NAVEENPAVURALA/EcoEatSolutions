@@ -1,17 +1,21 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Heart, TrendingUp, MapPin, MessageSquare, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Users, Heart, TrendingUp, MapPin, MessageSquare, ArrowRight, Gift, HandHeart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import LiveMap from "@/components/LiveMap";
 import CommunityChat from "@/components/CommunityChat";
 import { RecentDonations } from "@/components/RecentDonations";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import heroBanner from "@/assets/hero-banner.jpg";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
   useEffect(() => {
-    // Force scroll to top on page load
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     window.history.scrollRestoration = 'manual';
   }, []);
@@ -23,13 +27,18 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <h1 className="text-xl sm:text-2xl font-bold text-primary">Food Share</h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <LanguageSwitcher />
               <DarkModeToggle />
               <Link to="/login">
-                <Button variant="ghost">Sign In</Button>
+                <Button variant="ghost" size="sm" className="hidden sm:flex">
+                  {t('nav.signIn')}
+                </Button>
               </Link>
               <Link to="/signup">
-                <Button className="bg-primary hover:bg-primary/90">Get Started</Button>
+                <Button size="sm" className="bg-primary hover:bg-primary/90">
+                  {t('nav.signUp')}
+                </Button>
               </Link>
             </div>
           </div>
@@ -58,26 +67,32 @@ const Index = () => {
             </div>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Transform Surplus into <span className="text-primary">Sustenance</span>
+              {t('hero.title')}
             </h1>
             
             <p className="text-lg sm:text-xl text-gray-200 mb-8">
-              Join India's largest food redistribution network. Connect donors with communities in need,
-              eliminate waste, and create meaningful impact—one meal at a time.
+              {t('hero.subtitle')}
             </p>
             
             <div className="flex flex-wrap gap-4">
-              <Link to="/signup">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg">
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/browse">
-                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20">
-                  Browse Donations
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                onClick={() => navigate("/donate/post")}
+                className="bg-primary hover:bg-primary/90 text-lg"
+              >
+                <Gift className="mr-2 h-5 w-5" />
+                {t('hero.donateFood')}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button 
+                size="lg" 
+                onClick={() => navigate("/browse")}
+                variant="outline" 
+                className="bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20 text-lg"
+              >
+                <HandHeart className="mr-2 h-5 w-5" />
+                {t('hero.receiveFood')}
+              </Button>
             </div>
           </div>
         </div>
@@ -90,7 +105,7 @@ const Index = () => {
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why Choose Food Share?</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('features.title')}</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Making food donation simple, transparent, and impactful
             </p>
@@ -100,9 +115,9 @@ const Index = () => {
             <Card className="border-2 hover:border-primary transition-colors">
               <CardHeader>
                 <Users className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Community Impact</CardTitle>
+                <CardTitle>{t('features.community')}</CardTitle>
                 <CardDescription>
-                  Connect with local communities and make a real difference in your neighborhood
+                  {t('features.communityDesc')}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -120,9 +135,9 @@ const Index = () => {
             <Card className="border-2 hover:border-primary transition-colors">
               <CardHeader>
                 <TrendingUp className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Track Your Impact</CardTitle>
+                <CardTitle>{t('features.impact')}</CardTitle>
                 <CardDescription>
-                  Monitor your contributions and see the positive change you're creating
+                  {t('features.impactDesc')}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -174,16 +189,24 @@ const Index = () => {
             Join thousands of donors and organizations working together to end food waste and hunger
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/signup">
-              <Button size="lg" variant="secondary" className="text-lg">
-                Start Donating Today
-              </Button>
-            </Link>
-            <Link to="/browse">
-              <Button size="lg" variant="outline" className="text-lg border-white text-white hover:bg-white/10">
-                Browse Available Food
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              onClick={() => navigate("/signup")}
+              variant="secondary" 
+              className="text-lg"
+            >
+              <Gift className="mr-2 h-5 w-5" />
+              Start Donating Today
+            </Button>
+            <Button 
+              size="lg" 
+              onClick={() => navigate("/browse")}
+              variant="outline" 
+              className="text-lg border-white text-white hover:bg-white/10"
+            >
+              <HandHeart className="mr-2 h-5 w-5" />
+              Browse Available Food
+            </Button>
           </div>
         </div>
       </section>
@@ -195,7 +218,7 @@ const Index = () => {
             <div>
               <h3 className="font-bold text-lg mb-4">Food Share</h3>
               <p className="text-muted-foreground text-sm">
-                Transforming food waste into community sustenance across India
+                {t('footer.mission')}
               </p>
             </div>
             <div>
@@ -207,15 +230,15 @@ const Index = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">{t('footer.support')}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#" className="hover:text-primary">Help Center</a></li>
                 <li><a href="#" className="hover:text-primary">Safety Guidelines</a></li>
-                <li><a href="#" className="hover:text-primary">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-primary">{t('footer.terms')}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
+              <h4 className="font-semibold mb-4">{t('footer.contact')}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>Email: support@foodshare.in</li>
                 <li>Phone: +91 1800-FOOD-HELP</li>
@@ -223,7 +246,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            © 2025 Food Share. All rights reserved. Fighting food waste, one meal at a time.
+            © 2025 Food Share. {t('footer.rights')}
           </div>
         </div>
       </footer>

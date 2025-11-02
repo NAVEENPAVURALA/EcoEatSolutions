@@ -4,13 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home } from "lucide-react";
+import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home, Gift, Package, Calculator } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import { BackToHomeButton } from "@/components/BackToHomeButton";
 import { EmergencyMode } from "@/components/EmergencyMode";
+import NutritionCalculator from "@/components/NutritionCalculator";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string>("");
@@ -167,13 +171,16 @@ const Dashboard = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold">EcoEatSolutions</h1>
-                <p className="text-sm text-muted-foreground">Welcome back, {fullName}</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.welcome')}, {fullName}</p>
               </div>
             </div>
-            <Button variant="ghost" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <Button variant="ghost" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                {t('nav.signOut')}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -203,6 +210,22 @@ const Dashboard = () => {
                 {action.label}
               </Button>
             ))}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/my-donations")}
+            >
+              <Gift className="w-4 h-4 mr-2" />
+              {t('dashboard.myDonations')}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/received-items")}
+            >
+              <Package className="w-4 h-4 mr-2" />
+              {t('dashboard.receivedItems')}
+            </Button>
           </div>
 
           {/* Stats Grid */}
@@ -241,6 +264,9 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Nutrition Calculator */}
+          <NutritionCalculator />
 
           {/* Emergency Mode - Admin Only */}
           {userType === "organization" && (
