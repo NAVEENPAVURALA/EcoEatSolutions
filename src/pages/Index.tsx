@@ -146,7 +146,6 @@ const Index = () => {
         terms: "Terms of Service",
         contact: "Contact",
         copyright: "© 2025 EcoEatSolutions. All rights reserved. Fighting food waste, one meal at a time."
-        thanking: "Made with ❤️ in tamilnadu"
       }
     },
     hi: {
