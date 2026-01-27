@@ -41,7 +41,7 @@ const Chatbot = () => {
       }
 
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const chat = model.startChat({
         history: messages.map(msg => ({
@@ -110,8 +110,8 @@ const Chatbot = () => {
               >
                 <div
                   className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted"
                     }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
