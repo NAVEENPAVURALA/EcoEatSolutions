@@ -3,14 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Send } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { toast } from "sonner";
 
 interface Message {
   id: string;
   username: string;
   message: string;
-  created_at: string;
+  created_at: any; // Firestore timestamp
 }
 
 const CommunityChat = () => {
@@ -19,70 +21,41 @@ const CommunityChat = () => {
   const [username, setUsername] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    checkUser();
-    fetchMessages();
-    setupRealtimeSubscription();
-    
-    // Set up periodic cleanup of old messages (every 5 minutes)
-    const cleanupInterval = setInterval(async () => {
-      try {
-        await supabase.rpc('delete_old_chat_messages');
-      } catch (error) {
-        console.error("Error cleaning up old messages:", error);
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoggedIn(true);
+        setUsername(user.displayName || "Anonymous");
+        setUserId(user.uid);
+      } else {
+        setIsLoggedIn(false);
+        setUsername("");
+        setUserId("");
       }
-    }, 5 * 60 * 1000); // 5 minutes
+    });
 
-    return () => clearInterval(cleanupInterval);
+    // Realtime listener for messages
+    const q = query(collection(db, "chat_messages"), orderBy("created_at", "asc"), limit(50));
+    const unsubscribeChat = onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Message[];
+      setMessages(msgs);
+    });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeChat();
+    };
   }, []);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      setIsLoggedIn(true);
-      setUsername(session.user.user_metadata.full_name || "Anonymous");
-    }
-  };
-
-  const fetchMessages = async () => {
-    const { data, error } = await supabase
-      .from("chat_messages")
-      .select("*")
-      .order("created_at", { ascending: true })
-      .limit(50);
-
-    if (error) {
-      console.error("Error fetching messages:", error);
-    } else if (data) {
-      setMessages(data);
-    }
-  };
-
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel("chat_messages")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-        },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,23 +69,17 @@ const CommunityChat = () => {
       return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("Please sign in to send messages");
-      return;
-    }
-
-    const { error } = await supabase.from("chat_messages").insert({
-      user_id: session.user.id,
-      username: username,
-      message: newMessage.trim(),
-    });
-
-    if (error) {
+    try {
+      await addDoc(collection(db, "chat_messages"), {
+        user_id: userId,
+        username: username,
+        message: newMessage.trim(),
+        created_at: serverTimestamp(),
+      });
+      setNewMessage("");
+    } catch (error) {
       toast.error("Failed to send message");
       console.error("Error sending message:", error);
-    } else {
-      setNewMessage("");
     }
   };
 
@@ -150,7 +117,7 @@ const CommunityChat = () => {
             <div className="flex items-baseline gap-2 mb-1">
               <span className="font-semibold text-primary">{msg.username}</span>
               <span className="text-xs text-muted-foreground">
-                {new Date(msg.created_at).toLocaleTimeString()}
+                {msg.created_at?.toDate ? msg.created_at.toDate().toLocaleTimeString() : new Date().toLocaleTimeString()}
               </span>
             </div>
             <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>

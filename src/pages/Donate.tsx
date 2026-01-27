@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Heart, Calendar, MapPin, Phone, Package } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { BackToHomeButton } from "@/components/BackToHomeButton";
 import { ReceiptGenerator } from "@/components/ReceiptGenerator";
@@ -19,6 +21,7 @@ const Donate = () => {
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [donorName, setDonorName] = useState("");
+  const [userId, setUserId] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -35,15 +38,17 @@ const Donate = () => {
 
   useEffect(() => {
     // Check authentication
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
         toast.error("Please sign in to post donations");
         navigate("/login");
       } else {
         setIsAuthenticated(true);
-        setDonorName(session.user.user_metadata.full_name || "Donor");
+        setDonorName(user.displayName || "Donor");
+        setUserId(user.uid);
       }
     });
+    return () => unsubscribe();
   }, [navigate]);
 
   const handleDetectLocation = () => {
@@ -85,16 +90,15 @@ const Donate = () => {
     setLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      if (!auth.currentUser) {
         throw new Error("Not authenticated");
       }
 
       // Combine quantity value and unit
       const fullQuantity = `${quantityValue} ${quantityUnit}`;
 
-      const { error } = await supabase.from("donations").insert({
-        user_id: session.user.id,
+      await addDoc(collection(db, "donations"), {
+        user_id: userId,
         title: formData.title,
         description: formData.description,
         food_type: formData.food_type,
@@ -103,9 +107,10 @@ const Donate = () => {
         available_until: formData.available_until,
         contact_phone: formData.contact_phone,
         status: "available",
+        created_at: new Date().toISOString(),
+        collected_at: null,
+        collected_by: null
       });
-
-      if (error) throw error;
 
       // Generate receipt data
       const receipt = {
@@ -117,7 +122,7 @@ const Donate = () => {
         location: formData.pickup_location,
         receiptId: `DN-${Date.now()}`,
       };
-      
+
       setReceiptData(receipt);
       setShowReceipt(true);
       toast.success("Donation posted successfully!");

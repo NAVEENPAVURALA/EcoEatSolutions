@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/firebase/config";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home } from "lucide-react";
-import { Session } from "@supabase/supabase-js";
 import { BackToHomeButton } from "@/components/BackToHomeButton";
 import { EmergencyMode } from "@/components/EmergencyMode";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
@@ -24,49 +24,38 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        setUserType(session.user.user_metadata.user_type || "individual");
-        setFullName(session.user.user_metadata.full_name || "User");
-        fetchUserStats(session.user.id);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setFullName(user.displayName || "User");
+
+        // Fetch user type from Firestore
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            setUserType(userDoc.data().user_type || "individual");
+          }
+          await fetchUserStats(user.uid);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
       } else {
         navigate("/login");
       }
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate("/login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, [navigate]);
 
   const fetchUserStats = async (userId: string) => {
     try {
-      // Get total donations count
-      const { count: donationsCount } = await supabase
-        .from("donations")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId);
+      const q = query(collection(db, "donations"), where("user_id", "==", userId));
+      const querySnapshot = await getDocs(q);
+      const donationsCount = querySnapshot.size;
 
-      // Get all donations to calculate meals and impact
-      const { data: donations } = await supabase
-        .from("donations")
-        .select("quantity")
-        .eq("user_id", userId);
-
-      // Calculate meals (rough estimate: 1kg = 4 meals)
       let totalMeals = 0;
-      donations?.forEach((donation) => {
+      querySnapshot.forEach((doc) => {
+        const donation = doc.data();
         const quantityStr = donation.quantity.toLowerCase();
         const match = quantityStr.match(/(\d+\.?\d*)/);
         if (match) {
@@ -96,7 +85,7 @@ const Dashboard = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
     toast.success("Signed out successfully");
     navigate("/");
   };
@@ -232,11 +221,11 @@ const Dashboard = () => {
               <div className="text-center py-12 text-muted-foreground">
                 <p>No recent activity yet.</p>
                 <p className="text-sm mt-2">
-                  {userType === "restaurant" 
-                    ? "Start by posting your first donation!" 
+                  {userType === "restaurant"
+                    ? "Start by posting your first donation!"
                     : userType === "organization"
-                    ? "Browse available donations or create a request."
-                    : "Start donating food to see your impact here."}
+                      ? "Browse available donations or create a request."
+                      : "Start donating food to see your impact here."}
                 </p>
               </div>
             </CardContent>

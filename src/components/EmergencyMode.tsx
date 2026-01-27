@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { db, auth } from "@/firebase/config";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -22,11 +23,14 @@ export const EmergencyMode = () => {
   const activateEmergencyMode = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('emergency-alert', {
-        body: { message: "Emergency food distribution activated! Urgent need for donations." }
-      });
+      if (!auth.currentUser) throw new Error("Not authenticated");
 
-      if (error) throw error;
+      await addDoc(collection(db, "emergency_alerts"), {
+        message: "Emergency food distribution activated! Urgent need for donations.",
+        created_at: serverTimestamp(),
+        triggered_by: auth.currentUser.uid,
+        status: "active"
+      });
 
       toast.success("Emergency alert sent to all registered users!");
     } catch (error: any) {

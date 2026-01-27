@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Navigation, Copy } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/firebase/config";
+import { collection, query, where, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 interface Location {
@@ -24,44 +25,22 @@ const LiveMap = () => {
   const [isSharing, setIsSharing] = useState(false);
   const [watchId, setWatchId] = useState<number | null>(null);
 
+
+
   useEffect(() => {
-    fetchLocations();
-    setupRealtimeSubscription();
+    // Realtime listener for active locations
+    const q = query(collection(db, "live_locations"), where("is_active", "==", true));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const distinctLocations = new Map();
+      snapshot.docs.forEach(doc => {
+        // Use a map to handle distinct users if needed, or just map all
+        distinctLocations.set(doc.id, { id: doc.id, ...doc.data() });
+      });
+      setLocations(Array.from(distinctLocations.values()) as Location[]);
+    });
+
+    return () => unsubscribe();
   }, []);
-
-  const fetchLocations = async () => {
-    const { data, error } = await supabase
-      .from("live_locations")
-      .select("*")
-      .eq("is_active", true);
-
-    if (error) {
-      console.error("Error fetching locations:", error);
-    } else if (data) {
-      setLocations(data);
-    }
-  };
-
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel("live_locations")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "live_locations",
-        },
-        () => {
-          fetchLocations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
 
   const generateUniqueCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -78,35 +57,37 @@ const LiveMap = () => {
       return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    if (!auth.currentUser) {
       toast.error("Please sign in to share your location");
       return;
     }
 
     const code = generateUniqueCode();
     setUniqueCode(code);
+    const userId = auth.currentUser.uid;
+    const userName = auth.currentUser.displayName || "Anonymous";
 
     const id = navigator.geolocation.watchPosition(
       async (position) => {
-        const { error } = await supabase.from("live_locations").upsert({
-          user_id: session.user.id,
-          username: session.user.user_metadata.full_name || "Anonymous",
-          user_type: userType,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          unique_code: code,
-          is_active: true,
-        });
+        try {
+          await setDoc(doc(db, "live_locations", userId), {
+            user_id: userId,
+            username: userName,
+            user_type: userType,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            unique_code: code,
+            is_active: true,
+            updated_at: new Date().toISOString()
+          }, { merge: true });
 
-        if (error) {
-          console.error("Error updating location:", error);
-          toast.error("Failed to update location");
-        } else {
           if (!isSharing) {
             setIsSharing(true);
             toast.success(`Sharing location! Your code: ${code}`);
           }
+        } catch (error) {
+          console.error("Error updating location:", error);
+          toast.error("Failed to update location");
         }
       },
       (error) => {
@@ -129,12 +110,14 @@ const LiveMap = () => {
       setWatchId(null);
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      await supabase
-        .from("live_locations")
-        .update({ is_active: false })
-        .eq("user_id", session.user.id);
+    if (auth.currentUser) {
+      try {
+        await updateDoc(doc(db, "live_locations", auth.currentUser.uid), {
+          is_active: false
+        });
+      } catch (error) {
+        console.error("Error stopping sharing:", error);
+      }
     }
 
     setIsSharing(false);
@@ -220,11 +203,10 @@ const LiveMap = () => {
                     <MapPin className="h-4 w-4 text-primary" />
                     <span className="font-semibold">{loc.username}</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${
-                        loc.user_type === "donor"
-                          ? "bg-green-500/20 text-green-600"
-                          : "bg-blue-500/20 text-blue-600"
-                      }`}
+                      className={`text-xs px-2 py-0.5 rounded-full ${loc.user_type === "donor"
+                        ? "bg-green-500/20 text-green-600"
+                        : "bg-blue-500/20 text-blue-600"
+                        }`}
                     >
                       {loc.user_type}
                     </span>

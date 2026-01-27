@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, Calendar, Package, Phone } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/firebase/config";
+import { collection, query, where, orderBy, getDocs, doc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { BackToHomeButton } from "@/components/BackToHomeButton";
 
@@ -35,25 +36,35 @@ const Browse = () => {
   }, []);
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      setIsAuthenticated(true);
-      setUserId(session.user.id);
-    }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsAuthenticated(true);
+        setUserId(user.uid);
+      } else {
+        setIsAuthenticated(false);
+        setUserId(null);
+      }
+    });
+    return () => unsubscribe();
   };
 
   const fetchDonations = async () => {
     try {
-      const { data, error } = await supabase
-        .from("donations")
-        .select("*")
-        .eq("status", "available")
-        .order("created_at", { ascending: false });
+      const q = query(
+        collection(db, "donations"),
+        where("status", "==", "available"),
+        orderBy("created_at", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Donation[];
 
-      if (error) throw error;
-      setDonations(data || []);
+      setDonations(data);
     } catch (error: any) {
       toast.error("Failed to load donations");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -68,19 +79,15 @@ const Browse = () => {
 
     setCollectingId(donationId);
     try {
-      const { error } = await supabase
-        .from("donations")
-        .update({
-          status: "collected",
-          collected_by: userId,
-          collected_at: new Date().toISOString()
-        })
-        .eq("id", donationId);
-
-      if (error) throw error;
+      const donationRef = doc(db, "donations", donationId);
+      await updateDoc(donationRef, {
+        status: "collected",
+        collected_by: userId,
+        collected_at: new Date().toISOString()
+      });
 
       toast.success("Donation collected successfully!");
-      
+
       // Remove from local state
       setDonations(donations.filter(d => d.id !== donationId));
     } catch (error: any) {
@@ -162,12 +169,12 @@ const Browse = () => {
                     <Package className="w-4 h-4" />
                     <span>{donation.quantity}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
                     <span className="line-clamp-1">{donation.pickup_location}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4" />
                     <span>Until {formatDate(donation.available_until)}</span>
@@ -181,8 +188,8 @@ const Browse = () => {
                   )}
 
                   <div className="flex gap-2 mt-4">
-                    <Button 
-                      className="flex-1 gradient-primary" 
+                    <Button
+                      className="flex-1 gradient-primary"
                       onClick={() => handleCollectDonation(donation.id)}
                       disabled={collectingId === donation.id}
                     >
