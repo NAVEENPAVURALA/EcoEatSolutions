@@ -41,7 +41,7 @@ const Chatbot = () => {
       }
 
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
       const chat = model.startChat({
         history: messages.map(msg => ({
@@ -130,12 +130,6 @@ const Chatbot = () => {
               </div>
             )}
             <div ref={messagesEndRef} />
-          </div>
-
-          {/* Debug Info */}
-          <div className="px-4 py-2 text-xs bg-muted/50 border-t text-muted-foreground">
-            <p>Key Status: {import.meta.env.VITE_GEMINI_API_KEY ? "✅ Loaded" : "❌ Missing"}</p>
-            {import.meta.env.VITE_GEMINI_API_KEY && <p>Prefix: {import.meta.env.VITE_GEMINI_API_KEY.substring(0, 8)}...</p>}
           </div>
 
           {/* Input */}
