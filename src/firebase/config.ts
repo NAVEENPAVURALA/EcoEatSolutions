@@ -12,6 +12,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+// Debugging: Log partial keys to verify Vercel injection
+console.log("Environment Check:");
+console.log("Firebase API Key source:", import.meta.env.VITE_FIREBASE_API_KEY ? "Loaded" : "Missing");
+console.log("Gemini API Key source:", import.meta.env.VITE_GEMINI_API_KEY ? "Loaded" : "Missing");
+if (import.meta.env.VITE_FIREBASE_API_KEY) {
+  console.log("Firebase Key prefix:", import.meta.env.VITE_FIREBASE_API_KEY.substring(0, 5) + "...");
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
