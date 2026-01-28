@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,6 +165,22 @@ const Login = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Debug Info */}
+        <div className="text-center text-xs text-muted-foreground p-4 bg-muted/50 rounded-lg">
+          <p className="font-semibold mb-1">Debug Info (Take screenshot of this):</p>
+          <p>
+            Firebase Key:{" "}
+            <span className={import.meta.env.VITE_FIREBASE_API_KEY ? "text-green-500 font-bold" : "text-red-500 font-bold"}>
+              {import.meta.env.VITE_FIREBASE_API_KEY ? "LOADED" : "MISSING"}
+            </span>
+          </p>
+          {import.meta.env.VITE_FIREBASE_API_KEY && (
+            <p className="font-mono mt-1">
+              Prefix: {import.meta.env.VITE_FIREBASE_API_KEY.substring(0, 5)}...
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
