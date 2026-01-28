@@ -132,6 +132,12 @@ const Chatbot = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Debug Info */}
+          <div className="px-4 py-2 text-xs bg-muted/50 border-t text-muted-foreground">
+            <p>Key Status: {import.meta.env.VITE_GEMINI_API_KEY ? "✅ Loaded" : "❌ Missing"}</p>
+            {import.meta.env.VITE_GEMINI_API_KEY && <p>Prefix: {import.meta.env.VITE_GEMINI_API_KEY.substring(0, 8)}...</p>}
+          </div>
+
           {/* Input */}
           <div className="p-4 border-t">
             <form
