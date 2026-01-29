@@ -1,73 +1,50 @@
 # Deployment Guide for EcoEatSolutions
 
-Your application is built with **Vite + React + TypeScript** and uses **Firebase** for the backend. This guide covers how to deploy it to production.
+Your application is a production-ready **Vite + React** app with a **Firebase** backend.
 
 ## 1. Prerequisites
--   **GitHub Repository**: Ensure your code is pushed to GitHub (already done).
--   **Vercel Account**: We recommend [Vercel](https://vercel.com) for the easiest hosting experience with Vite apps.
--   **Firebase Project**: You already have this connected.
+-   **GitHub Repository**: Your code is already here.
+-   **Vercel Account**: [Sign up here](https://vercel.com) (free).
 
-## 2. Environment Variables
-When deploying, you must add your environment variables to your hosting provider. DO NOT commit `.env` to GitHub.
+## 2. Environment Variables (Critical)
+You must set these in Vercel. **DO NOT** commit `.env` to GitHub.
 
-Go to your Vercel Project Settings > **Environment Variables** and add the following (copy values from your local `.env`):
+Copy these exact values from your local `.env` file and paste them into Vercel:
 
-```bash
-VITE_FIREBASE_API_KEY=your_value
-VITE_FIREBASE_AUTH_DOMAIN=your_value
-VITE_FIREBASE_PROJECT_ID=your_value
-VITE_FIREBASE_STORAGE_BUCKET=your_value
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_value
-VITE_FIREBASE_APP_ID=your_value
-```
+| Variable | Value (Example - Use your real ones) |
+| :--- | :--- |
+| `VITE_FIREBASE_API_KEY` | `AIzaSyAf...` |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `ecoeatsolutions.firebaseapp.com` |
+| `VITE_FIREBASE_PROJECT_ID` | `ecoeatsolutions` |
+| `VITE_FIREBASE_STORAGE_BUCKET` | `ecoeatsolutions.firebasestorage.app` |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `429...` |
+| `VITE_FIREBASE_APP_ID` | `1:429...` |
+| `VITE_HUGGING_FACE_API_KEY` | `hf_...` (If used for chat/AI) |
 
-## 3. Deployment Steps (Vercel)
+*(Note: Ignore the Supabase variables in your local file, they are not used.)*
 
-1.  **Login** to Vercel (https://vercel.com).
-2.  **Add New...** > **Project**.
+## 3. One-Click Deployment (Recommended)
+
+1.  **Go to Vercel Dashboard**: https://vercel.com/dashboard
+2.  Click **Add New...** -> **Project**.
 3.  **Import** your `EcoEatSolutions` repository.
-4.  **Framework Preset**: Select **Vite**.
-5.  **Build Command**: `npm run build` (default).
-6.  **Output Directory**: `dist` (default).
-7.  **Environment Variables**: Paste the values from Step 2.
-8.  Click **Deploy**.
+4.  **Framework Preset**: Select `Vite`.
+5.  **Root Directory**: leave as `./`.
+6.  **Environment Variables**: Expand this section and copy-paste all variables from Step 2.
+7.  Click **Deploy**.
 
-## 4. Firebase Security Rules (Important)
-For production security, ensure your Firestore rules are strict. Go to Firebase Console > Firestore Database > Rules.
+## 4. Post-Deployment Configuration
 
-**Recommended Rules:**
-```firestore
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    
-    // Users: Users can read/write their own profile
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Donations: Anyone can read, only auth users can create
-    match /donations/{donationId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      // Only the creator or the claimer can update
-      allow update: if request.auth != null && (resource.data.userId == request.auth.uid || resource.data.status == "available");
-    }
-    
-    // Requests: Similar to donations
-    match /requests/{requestId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-  }
-}
-```
+1.  **Authorize Domain**:
+    -   Once deployed, Vercel gives you a URL (e.g., `ecoeatsolutions.vercel.app`).
+    -   Go to **Firebase Console** -> **Authentication** -> **Settings** -> **Authorized Domains**.
+    -   Add your new Vercel domain there. **Login will fail if you skip this.**
 
-## 5. Post-Deployment Checks
--   Visit your live URL.
--   Test the **Login/Signup** flow (ensure Google Auth works - you may need to add your Vercel domain to "Authorized Domains" in Firebase Authentication settings).
--   Verify **Browse Page** loads images correctly.
--   Make a test donation.
+2.  **Test**:
+    -   Open your new site.
+    -   Try to Log In.
+    -   Try to Donate (Geolocation should ask for permission).
 
-🍏 **Enjoy your new Apple-Standard application!**
+## 5. Troubleshooting
+-   **404 on Refresh**: This is handled by `vercel.json` rewrites. If it fails, ensure `vercel.json` is in the root.
+-   **Login Fails**: Check "Authorized Domains" in Firebase (Step 4).
