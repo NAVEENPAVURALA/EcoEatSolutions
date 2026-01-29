@@ -35,6 +35,8 @@ export const Navbar = () => {
         { name: "Home", path: "/" },
         { name: "Browse", path: "/browse", show: true },
         { name: "Donate", path: "/donate/post", show: true },
+        { name: "Leaderboard", path: "/leaderboard", show: true },
+        { name: "Messages", path: "/messages", show: !!user },
         { name: "Dashboard", path: "/dashboard", show: !!user },
     ].filter(link => link.show);
 
