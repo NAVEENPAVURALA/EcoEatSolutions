@@ -171,8 +171,34 @@ const Donate = () => {
                   <MapPin className="w-4 h-4" /> Logistics
                 </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="address">Pickup Address</Label>
+                <div className="grid gap-2 relative">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="address">Pickup Address</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-primary gap-1"
+                      onClick={() => {
+                        if (!navigator.geolocation) {
+                          toast.error("Geolocation is not supported by your browser");
+                          return;
+                        }
+                        navigator.geolocation.getCurrentPosition(
+                          (position) => {
+                            const { latitude, longitude } = position.coords;
+                            setFormData(prev => ({ ...prev, address: `Lat: ${latitude.toFixed(4)}, Long: ${longitude.toFixed(4)}` }));
+                            toast.success("Location fetched!");
+                          },
+                          () => {
+                            toast.error("Unable to retrieve your location");
+                          }
+                        );
+                      }}
+                    >
+                      <MapPin className="w-3 h-3" /> Use my location
+                    </Button>
+                  </div>
                   <Input
                     id="address"
                     placeholder="Full street address for pickup"

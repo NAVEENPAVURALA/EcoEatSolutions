@@ -69,12 +69,18 @@ export const Navbar = () => {
                     ))}
                 </div>
 
+                import {NotificationsSheet} from "./NotificationsSheet";
+
+                // ... (inside component)
                 {/* Auth Buttons */}
                 <div className="hidden md:flex items-center gap-4">
                     {user ? (
-                        <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
-                            Sign Out
-                        </Button>
+                        <>
+                            <NotificationsSheet />
+                            <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
+                                Sign Out
+                            </Button>
+                        </>
                     ) : (
                         <>
                             <Link to="/login">
