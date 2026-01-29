@@ -2,84 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    /* EcoEatSolutions Design System - HSL Colors */
-    --background: 248 100% 99%;
-    --foreground: 215 16% 22%;
+    /* 
+      Apple-Standard Design System 
+      Base: Zinc (Neutral, crisp, premium)
+      Accent: Vibrant Green (Sustainability)
+    */
+    
+    /* Backgrounds */
+    --background: 0 0% 100%;       /* Pure White */
+    --foreground: 240 10% 3.9%;    /* Zinc 950 */
 
+    /* Cards & Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 215 16% 22%;
-
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 16% 22%;
+    --popover-foreground: 240 10% 3.9%;
 
-    /* Primary: Warm Green - sustainability and growth */
-    --primary: 142 71% 45%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 142 71% 65%;
+    /* Primary: The Brand Color (Vibrant Green) */
+    --primary: 142 76% 36%;        /* Deep Green */
+    --primary-foreground: 355.7 100% 97.3%;
 
-    /* Secondary: Deep Blue - trust and reliability */
-    --secondary: 224 64% 33%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary: Subtle backgrounds */
+    --secondary: 240 4.8% 95.9%;   /* Zinc 100 */
+    --secondary-foreground: 240 5.9% 10%;
 
-    /* Accent: Orange - urgency and action */
-    --accent: 22 93% 54%;
-    --accent-foreground: 0 0% 100%;
+    /* Muted: De-emphasized text */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%; /* Zinc 500 */
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Accents & Destructive */
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Borders & Inputs */
+    --border: 240 5.9% 90%;        /* Zinc 200 */
+    --input: 240 5.9% 90%;
+    --ring: 142 76% 36%;           /* Match Primary */
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 142 71% 45%;
-
-    --radius: 0.75rem;
-
-    /* Custom gradients and effects */
-    --gradient-primary: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(224 64% 33%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(22 93% 54%), hsl(22 93% 64%));
-    --shadow-subtle: 0 2px 10px -2px hsl(142 71% 45% / 0.1);
-    --shadow-glow: 0 0 40px hsl(142 71% 65% / 0.3);
+    --radius: 0.75rem;             /* 12px rounded corners (Modern) */
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Dark Mode: Deep Zinc (Not pure black) */
+    --background: 240 10% 3.9%;    /* Zinc 950 */
+    --foreground: 0 0% 98%;
 
-    --card: 224 71% 4%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
+    --primary: 142 70% 50%;        /* Brighter Green for Dark Mode */
+    --primary-foreground: 144.9 80.4% 10%;
 
-    --primary: 142 71% 45%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 142 71% 65%;
+    --secondary: 240 3.7% 15.9%;   /* Zinc 800 */
+    --secondary-foreground: 0 0% 98%;
 
-    --secondary: 224 64% 43%;
-    --secondary-foreground: 0 0% 100%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 22 93% 54%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 142 71% 45%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142 70% 50%;
   }
 }
 
@@ -87,34 +81,49 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    font-feature-settings: "rlig" 1, "calt" 1; /* Optimize font rendering */
   }
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
+  /* Glassmorphism Utilities */
+  .glass {
+    @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border border-white/20 dark:border-white/10;
   }
   
-  .gradient-hero {
-    background: var(--gradient-hero);
+  .glass-card {
+    @apply bg-white/50 dark:bg-zinc-900/50 backdrop-blur-lg border border-white/20 dark:border-white/10 shadow-sm transition-all duration-300 hover:shadow-md;
+  }
+
+  /* Text Utilities */
+  .text-balance {
+    text-wrap: balance;
   }
   
-  .gradient-accent {
-    background: var(--gradient-accent);
+  /* Animations */
+  .animate-fade-up {
+    animation: fade-up 0.5s ease-out forwards;
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
   }
 
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }
