@@ -158,13 +158,12 @@ const Chatbot = () => {
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-2xl rounded-bl-none px-4 py-3">
-                  <div className="flex gap-1.5">
-                    <div className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce" />
-                    <div className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce delay-100" />
-                    <div className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce delay-200" />
-                  </div>
+              <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2">
+                <div className="bg-muted rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-1.5">
+                  <span className="text-xs text-muted-foreground mr-1">EcoEat is thinking</span>
+                  <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce" />
                 </div>
               </div>
             )}

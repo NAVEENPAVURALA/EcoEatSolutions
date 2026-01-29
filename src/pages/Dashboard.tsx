@@ -6,7 +6,7 @@ import { doc, getDoc, collection, query, where, getDocs } from "firebase/firesto
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home } from "lucide-react";
+import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home, Package } from "lucide-react";
 import { BackToHomeButton } from "@/components/BackToHomeButton";
 import { EmergencyMode } from "@/components/EmergencyMode";
 
@@ -92,8 +92,18 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-background">
+        <header className="border-b h-16" />
+        <main className="container mx-auto px-4 py-8 space-y-8">
+          <div className="h-20 bg-muted/20 rounded-lg animate-pulse w-1/3" />
+          <div className="flex gap-3">
+            {[1, 2].map(i => <div key={i} className="h-10 w-32 bg-muted/20 rounded-md animate-pulse" />)}
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted/20 rounded-xl animate-pulse" />)}
+          </div>
+          <div className="h-64 bg-muted/20 rounded-xl animate-pulse" />
+        </main>
       </div>
     );
   }
@@ -219,14 +229,19 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-12 text-muted-foreground">
-                <p>No recent activity yet.</p>
-                <p className="text-sm mt-2">
-                  {userType === "restaurant"
-                    ? "Start by posting your first donation!"
-                    : userType === "organization"
-                      ? "Browse available donations or create a request."
-                      : "Start donating food to see your impact here."}
-                </p>
+                <div className="flex flex-col items-center justify-center text-muted-foreground">
+                  <div className="p-4 bg-muted/20 rounded-full mb-3">
+                    <Package className="w-8 h-8 opacity-50" />
+                  </div>
+                  <p className="font-medium">No recent activity</p>
+                  <p className="text-sm mt-1 max-w-sm">
+                    {userType === "restaurant"
+                      ? "Your donations will appear here. Start by posting your first food donation!"
+                      : userType === "organization"
+                        ? "Requests and claimed donations will be tracked here."
+                        : "Your contributions make a difference. Start donating today!"}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
