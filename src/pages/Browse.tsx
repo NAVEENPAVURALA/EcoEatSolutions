@@ -1,52 +1,24 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { collection, query, where, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
+import { db, auth } from "@/firebase/config";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Calendar, Package, Phone } from "lucide-react";
-import { auth, db } from "@/firebase/config";
-import { collection, query, where, orderBy, getDocs, doc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
-import { BackToHomeButton } from "@/components/BackToHomeButton";
-
-interface Donation {
-  id: string;
-  title: string;
-  description: string;
-  food_type: string;
-  quantity: string;
-  pickup_location: string;
-  available_until: string;
-  contact_phone: string | null;
-  status: string;
-  created_at: string;
-}
+import { Search, MapPin, Clock, ArrowRight, Loader2, Filter } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Browse = () => {
-  const navigate = useNavigate();
-  const [donations, setDonations] = useState<Donation[]>([]);
+  const [donations, setDonations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [collectingId, setCollectingId] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDonation, setSelectedDonation] = useState<any>(null);
+  const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
-    checkAuth();
     fetchDonations();
   }, []);
-
-  const checkAuth = async () => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setIsAuthenticated(true);
-        setUserId(user.uid);
-      } else {
-        setIsAuthenticated(false);
-        setUserId(null);
-      }
-    });
-    return () => unsubscribe();
-  };
 
   const fetchDonations = async () => {
     try {
@@ -56,152 +28,157 @@ const Browse = () => {
         orderBy("created_at", "desc")
       );
       const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({
+      const items = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })) as Donation[];
-
-      setDonations(data);
-    } catch (error: any) {
-      toast.error("Failed to load donations");
-      console.error(error);
+      }));
+      setDonations(items);
+    } catch (error) {
+      console.error("Error fetching donations:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCollectDonation = async (donationId: string) => {
-    if (!isAuthenticated) {
-      toast.error("Please sign in to collect donations");
-      navigate("/login");
+  const handleClaim = async () => {
+    if (!auth.currentUser) {
+      toast.error("Please login to claim donations");
       return;
     }
-
-    setCollectingId(donationId);
+    setClaiming(true);
     try {
-      const donationRef = doc(db, "donations", donationId);
+      const donationRef = doc(db, "donations", selectedDonation.id);
       await updateDoc(donationRef, {
-        status: "collected",
-        collected_by: userId,
-        collected_at: new Date().toISOString()
+        status: "claimed",
+        claimedBy: auth.currentUser.uid,
+        claimedAt: new Date().toISOString()
       });
-
-      toast.success("Donation collected successfully!");
-
-      // Remove from local state
-      setDonations(donations.filter(d => d.id !== donationId));
-    } catch (error: any) {
-      toast.error("Failed to collect donation");
-      console.error("Error:", error);
+      toast.success("Donation claimed successfully! Please coordinate pickup.");
+      setSelectedDonation(null);
+      fetchDonations(); // Refresh list
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to claim donation");
     } finally {
-      setCollectingId(null);
+      setClaiming(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getFoodTypeBadgeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "vegetarian":
-        return "bg-green-500/10 text-green-700 dark:text-green-400";
-      case "vegan":
-        return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
-      case "non-vegetarian":
-        return "bg-red-500/10 text-red-700 dark:text-red-400";
-      default:
-        return "bg-blue-500/10 text-blue-700 dark:text-blue-400";
-    }
-  };
+  const filteredDonations = donations.filter(item =>
+    item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.address?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
-      <BackToHomeButton />
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-secondary/30 py-8 px-4">
+      <div className="container mx-auto max-w-6xl animate-fade-in">
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Browse Donations</h1>
-          <p className="text-muted-foreground">
-            Find available food donations near you
-          </p>
+        {/* Header & Search */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Available Food</h1>
+            <p className="text-muted-foreground">Find fresh surplus food near you.</p>
+          </div>
+
+          <div className="flex gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by food or location..."
+                className="pl-10 h-10 bg-white shadow-sm border-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" className="h-10 px-3 bg-white border-none shadow-sm">
+              <Filter className="w-4 h-4 mr-2" /> Filter
+            </Button>
+          </div>
         </div>
 
+        {/* Listings Grid */}
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        ) : donations.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-lg text-muted-foreground mb-2">No donations available yet</p>
-              <p className="text-sm text-muted-foreground">Check back later for new food donations</p>
-            </CardContent>
-          </Card>
-        ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {donations.map((donation) => (
-              <Card key={donation.id} className="hover:shadow-lg transition-all border-2 hover:border-primary/50">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <CardTitle className="text-xl">{donation.title}</CardTitle>
-                    <Badge className={getFoodTypeBadgeColor(donation.food_type)}>
-                      {donation.food_type}
-                    </Badge>
+            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-64 bg-muted/50 rounded-2xl animate-pulse" />)}
+          </div>
+        ) : filteredDonations.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredDonations.map((item) => (
+              <Card key={item.id} className="glass-card flex flex-col items-start hover:shadow-lg transition-all border-white/20 h-full group">
+                <div className="relative w-full h-48 bg-muted rounded-t-xl overflow-hidden mb-4">
+                  {/* Placeholder for image - in real app would use item.imageUrl */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                    <Badge className="bg-white/90 text-black hover:bg-white">{item.type || "Food"}</Badge>
                   </div>
-                  <CardDescription className="line-clamp-2">
-                    {donation.description}
-                  </CardDescription>
+                </div>
+
+                <CardHeader className="p-4 pt-0 w-full mb-auto">
+                  <h3 className="font-bold text-xl mb-1 line-clamp-1 group-hover:text-primary transition-colors">{item.title}</h3>
+                  <div className="flex items-center text-sm text-muted-foreground gap-1 mb-2">
+                    <MapPin className="w-3 h-3" /> <span className="line-clamp-1">{item.address} (approx)</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Package className="w-4 h-4" />
-                    <span>{donation.quantity}</span>
-                  </div>
 
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    <span className="line-clamp-1">{donation.pickup_location}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span>Until {formatDate(donation.available_until)}</span>
-                  </div>
-
-                  {donation.contact_phone && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="w-4 h-4" />
-                      <span>{donation.contact_phone}</span>
+                <CardFooter className="p-4 w-full border-t border-border/50">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md">
+                      <Clock className="w-3 h-3 mr-1" /> {item.pickupTime || "Flexible"}
                     </div>
-                  )}
 
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      className="flex-1 gradient-primary"
-                      onClick={() => handleCollectDonation(donation.id)}
-                      disabled={collectingId === donation.id}
-                    >
-                      {collectingId === donation.id ? "Collecting..." : "Collect Donation"}
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      Contact Donor
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" onClick={() => setSelectedDonation(item)}>View</Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>{selectedDonation?.title}</DialogTitle>
+                          <DialogDescription>
+                            Posted by {selectedDonation?.userName || "Anonymous"}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-muted-foreground">Quantity</p>
+                              <p className="font-semibold">{selectedDonation?.quantity}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-muted-foreground">Type</p>
+                              <p className="font-semibold capitalize">{selectedDonation?.type}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-muted-foreground">Pickup Address</p>
+                            <p>{selectedDonation?.address}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-muted-foreground">Description</p>
+                            <p className="text-sm">{selectedDonation?.description}</p>
+                          </div>
+                        </div>
+                        <DialogFooter className="sm:justify-between">
+                          <Button variant="secondary" type="button" onClick={() => setSelectedDonation(null)}>
+                            Close
+                          </Button>
+                          <Button type="button" onClick={handleClaim} disabled={claiming} className="bg-primary text-white">
+                            {claiming ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Claim"}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                </CardContent>
+                </CardFooter>
               </Card>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-muted mb-4">
+              <Search className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">No food found</h2>
+            <p className="text-muted-foreground">Try adjusting your search or check back later.</p>
           </div>
         )}
       </div>
