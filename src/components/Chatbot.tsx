@@ -34,18 +34,18 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_HUGGING_FACE_API_KEY;
+      let apiKey = import.meta.env.VITE_HUGGING_FACE_API_KEY;
       if (!apiKey) {
-        throw new Error("Hugging Face API key not found");
+        throw new Error("API key not configured");
       }
+      apiKey = apiKey.trim(); // Ensure no spaces
 
-      // Construct the prompt with context
-      // Using Mistral-7B-Instruct format: <s>[INST] Instruction [/INST]
-      const systemPrompt = "You are EcoEat Assistant, a helpful AI for a food donation platform. Keep your answers concise, encouraging, and focused on helping users donate food or find food. Limit response to 3 sentences.";
-      const prompt = `<s>[INST] ${systemPrompt}\n\nUser: ${input} [/INST]`;
+      // Prompt for Mistral-7B-Instruct-v0.2
+      const systemPrompt = "You are EcoEat Assistant, a helpful AI for a food donation platform. Keep answers concise (max 3 sentences).";
+      const prompt = `<s>[INST] ${systemPrompt} ${input} [/INST]`;
 
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",
+        "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
         {
           headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -55,28 +55,45 @@ const Chatbot = () => {
           body: JSON.stringify({
             inputs: prompt,
             parameters: {
-              return_full_text: false,
               max_new_tokens: 150,
               temperature: 0.7,
+              return_full_text: false,
             },
           }),
         }
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch response");
+        // Handle common HF errors
+        const errorText = await response.text();
+        let errorMessage = "API request failed";
+        try {
+          const json = JSON.parse(errorText);
+          errorMessage = json.error || errorMessage;
+        } catch (e) {
+          errorMessage = errorText || response.statusText;
+        }
+
+        // Handle model loading state
+        if (errorMessage.includes("loading")) {
+          throw new Error("Model is waking up. Please try again in 20 seconds.");
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
-      // HF Inference API returns an array with generated_text
-      const text = result[0]?.generated_text || "I'm not sure how to respond to that.";
+      const text = result[0]?.generated_text || "I couldn't generate a response.";
 
       setMessages((prev) => [...prev, { role: "assistant", content: text.trim() }]);
     } catch (error: any) {
-      console.error("Error:", error);
-      toast.error("AI Error: " + (error.message || "Failed to connect"));
-      // Remove the user message if it failed so they can try again
+      console.error("Chat Error:", error);
+      let msg = error.message || "Connection failed";
+
+      if (msg === "Failed to fetch" || msg === "Load failed") {
+        msg = "Network error. Check your connection or ad-blocker.";
+      }
+
+      toast.error(msg);
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
