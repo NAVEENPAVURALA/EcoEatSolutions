@@ -40,7 +40,7 @@ const Chatbot = () => {
       // PRODUCTION: Use Vercel Proxy (Secure & No CORS)
       // ---------------------------------------------------------
       if (!import.meta.env.DEV) {
-        const response = await fetch('/api/chatProxy', {
+        const response = await fetch('/api/proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: input })
