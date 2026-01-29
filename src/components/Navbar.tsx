@@ -4,6 +4,7 @@ import { Leaf, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { auth } from "@/firebase/config";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { NotificationsSheet } from "./NotificationsSheet";
 
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -69,9 +70,7 @@ export const Navbar = () => {
                     ))}
                 </div>
 
-                import {NotificationsSheet} from "./NotificationsSheet";
 
-                // ... (inside component)
                 {/* Auth Buttons */}
                 <div className="hidden md:flex items-center gap-4">
                     {user ? (
