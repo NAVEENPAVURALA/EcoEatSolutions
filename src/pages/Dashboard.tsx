@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { query, collection, where, getDocs, orderBy, limit, doc, getDoc } from "firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Utensils, Heart, ArrowRight, User, Settings, Sparkles, Clock, Leaf, Package } from "lucide-react";
+import { Plus, Search, Utensils, Heart, ArrowRight, User, Settings, Sparkles, Clock, Leaf, Package, QrCode } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { QRGenerator } from "@/components/QRGenerator";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const Dashboard = () => {
     impactScore: 0
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [qrDonationId, setQrDonationId] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -35,7 +38,7 @@ const Dashboard = () => {
           setUserData(userDoc.data());
         }
 
-        // Fetch Stats (Mock logic for now, meant to be replaced with real aggregation)
+        // Fetch Stats
         const q = query(
           collection(db, "donations"),
           where("userId", "==", currentUser.uid),
@@ -49,7 +52,7 @@ const Dashboard = () => {
         setStats({
           activeDonations: donations.filter(d => d.status === "available").length,
           completedDonations: donations.filter(d => d.status === "claimed").length,
-          impactScore: donations.length * 10 // Arbitrary impact score
+          impactScore: donations.length * 10
         });
 
       } catch (error) {
@@ -104,7 +107,7 @@ const Dashboard = () => {
       {/* Main Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
-        {/* Quick Actions Card (Double width on mobile if needed, usually simplistic) */}
+        {/* Quick Actions Card */}
         <Card className="md:col-span-2 glass-card border-none bg-gradient-to-br from-primary/5 to-blue-500/5 overflow-hidden relative">
           <div className="absolute top-0 right-0 p-8 opacity-10">
             <Sparkles className="w-32 h-32" />
@@ -206,7 +209,14 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{d.title}</h3>
-                  <p className="text-sm text-muted-foreground">{new Date(d.created_at).toLocaleDateString()}</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>{new Date(d.created_at).toLocaleDateString()}</span>
+                    {d.status === "available" && (
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1 ml-2 text-primary" onClick={() => setQrDonationId(d.userId + ":" + d.title)}>
+                        <QrCode className="w-3 h-3" /> Show QR
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className={`px-3 py-1 rounded-full text-xs font-medium ${d.status === "available" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
@@ -228,6 +238,22 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      <Dialog open={!!qrDonationId} onOpenChange={() => setQrDonationId(null)}>
+        <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-center pb-4 border-b">Verification Code</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-6 bg-secondary/10 rounded-xl">
+            <p className="mb-4 text-center text-muted-foreground text-sm">
+              Show this to the volunteer/recipient to verify the transaction.
+            </p>
+            {qrDonationId && (
+              <QRGenerator value={`verify:${qrDonationId}`} label="Scan to Verify" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

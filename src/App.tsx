@@ -16,6 +16,7 @@ const Browse = lazy(() => import("./pages/Browse"));
 const Donate = lazy(() => import("./pages/Donate"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Messages = lazy(() => import("./pages/Messages"));
+const VolunteerDashboard = lazy(() => import("./pages/VolunteerDashboard"));
 const Request = lazy(() => import("./pages/Request"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/donate/post" element={<Donate />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/messages" element={<Messages />} />
+              <Route path="/volunteer" element={<VolunteerDashboard />} />
               <Route path="/request" element={<Request />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
