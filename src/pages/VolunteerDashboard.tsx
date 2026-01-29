@@ -223,9 +223,7 @@ const VolunteerDashboard = () => {
                                                     Scan to Deliver
                                                 </Button>
                                             )}
-                                            <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => updateRunStatus(run.id, run.transport_status === 'assigned' ? 'in_transit' : 'delivered')}>
-                                                (Debug: Skip Scan)
-                                            </Button>
+
                                         </div>
                                     </Card>
                                 ))}
