@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Upload, ChefHat, MapPin, Calendar } from "lucide-react";
+import vegImg from "@/assets/veg-food.png";
+import nonVegImg from "@/assets/non-veg-food.png";
+import bakeryImg from "@/assets/bakery-food.png";
 
 /**
  * Premium single-column donation form.
@@ -144,6 +147,21 @@ const Donate = () => {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
+                </div>
+
+                {/* Visual Preview */}
+                <div className="p-4 rounded-xl bg-secondary/20 border border-border/50 flex items-center gap-4 animate-fade-in">
+                  <div className="h-16 w-16 rounded-lg overflow-hidden bg-white shadow-sm shrink-0">
+                    <img
+                      src={formData.type === "non-veg" ? nonVegImg : formData.type === "bakery" ? bakeryImg : vegImg}
+                      className="w-full h-full object-cover"
+                      alt="Preview"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Category Visual</p>
+                    <p className="text-xs text-muted-foreground">This illustration will be shown to recipients.</p>
+                  </div>
                 </div>
               </div>
 

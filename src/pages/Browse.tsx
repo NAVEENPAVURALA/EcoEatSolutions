@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Search, MapPin, Clock, ArrowRight, Loader2, Filter } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import vegImg from "@/assets/veg-food.png";
+import nonVegImg from "@/assets/non-veg-food.png";
+import bakeryImg from "@/assets/bakery-food.png";
 
 const Browse = () => {
   const [donations, setDonations] = useState<any[]>([]);
@@ -105,11 +108,16 @@ const Browse = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDonations.map((item) => (
               <Card key={item.id} className="glass-card flex flex-col items-start hover:shadow-lg transition-all border-white/20 h-full group">
-                <div className="relative w-full h-48 bg-muted rounded-t-xl overflow-hidden mb-4">
-                  {/* Placeholder for image - in real app would use item.imageUrl */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                    <Badge className="bg-white/90 text-black hover:bg-white">{item.type || "Food"}</Badge>
+                <div className="relative w-full h-48 bg-secondary/20 overflow-hidden">
+                  <img
+                    src={item.food_type === "non-veg" ? nonVegImg : item.food_type === "bakery" ? bakeryImg : vegImg}
+                    alt={item.type}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute top-3 right-3">
+                    <Badge className="bg-white/90 text-black backdrop-blur-sm shadow-sm hover:bg-white">{item.type || "Food"}</Badge>
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
                 <CardHeader className="p-4 pt-0 w-full mb-auto">
