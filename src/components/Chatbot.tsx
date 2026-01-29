@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { MessageCircle, X, Send } from "lucide-react";
 import { toast } from "sonner";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface Message {
   role: "user" | "assistant";
@@ -35,29 +34,49 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = import.meta.env.VITE_HUGGING_FACE_API_KEY;
       if (!apiKey) {
-        throw new Error("Gemini API key not found");
+        throw new Error("Hugging Face API key not found");
       }
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      // Construct the prompt with context
+      // Using Mistral-7B-Instruct format: <s>[INST] Instruction [/INST]
+      const systemPrompt = "You are EcoEat Assistant, a helpful AI for a food donation platform. Keep your answers concise, encouraging, and focused on helping users donate food or find food. Limit response to 3 sentences.";
+      const prompt = `<s>[INST] ${systemPrompt}\n\nUser: ${input} [/INST]`;
 
-      const chat = model.startChat({
-        history: messages.map(msg => ({
-          role: msg.role === "assistant" ? "model" : "user",
-          parts: [{ text: msg.content }],
-        })),
-      });
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: {
+              return_full_text: false,
+              max_new_tokens: 150,
+              temperature: 0.7,
+            },
+          }),
+        }
+      );
 
-      const result = await chat.sendMessage(input);
-      const response = await result.response;
-      const text = response.text();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch response");
+      }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: text }]);
+      const result = await response.json();
+      // HF Inference API returns an array with generated_text
+      const text = result[0]?.generated_text || "I'm not sure how to respond to that.";
+
+      setMessages((prev) => [...prev, { role: "assistant", content: text.trim() }]);
     } catch (error: any) {
       console.error("Error:", error);
-      toast.error("Failed to send message: " + (error.message || "Unknown error"));
+      toast.error("AI Error: " + (error.message || "Failed to connect"));
+      // Remove the user message if it failed so they can try again
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
@@ -70,7 +89,7 @@ const Chatbot = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 gradient-primary hover:scale-105 transition-transform"
           size="icon"
         >
           <MessageCircle className="h-6 w-6" />
@@ -79,9 +98,9 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-[380px] h-[500px] flex flex-col shadow-2xl z-50">
+        <Card className="fixed bottom-6 right-6 w-[350px] sm:w-[380px] h-[500px] flex flex-col shadow-2xl z-50 animate-in slide-in-from-bottom-10 fade-in duration-300">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
+          <div className="flex items-center justify-between p-4 border-b gradient-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
               <h3 className="font-semibold">EcoEat Assistant</h3>
@@ -90,17 +109,18 @@ const Chatbot = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+              className="h-8 w-8 text-primary-foreground hover:bg-white/20"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/95">
             {messages.length === 0 && (
-              <div className="text-center text-muted-foreground text-sm mt-8">
-                Hi! How can I help you with food donations today?
+              <div className="text-center text-muted-foreground text-sm mt-8 px-4">
+                <p>👋 Hi! I'm here to help.</p>
+                <p className="mt-2">Ask me about creating a donation, finding food, or how our platform works.</p>
               </div>
             )}
             {messages.map((msg, idx) => (
@@ -109,22 +129,22 @@ const Chatbot = () => {
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm ${msg.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-br-none"
+                    : "bg-muted text-foreground rounded-bl-none"
                     }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-muted rounded-lg px-4 py-2">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-100" />
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-200" />
+                <div className="bg-muted rounded-2xl rounded-bl-none px-4 py-3">
+                  <div className="flex gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce" />
+                    <div className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce delay-100" />
+                    <div className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce delay-200" />
                   </div>
                 </div>
               </div>
@@ -133,7 +153,7 @@ const Chatbot = () => {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t">
+          <div className="p-3 border-t bg-background">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -146,9 +166,14 @@ const Chatbot = () => {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
                 disabled={isLoading}
-                className="flex-1"
+                className="flex-1 focus-visible:ring-primary"
               />
-              <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+              <Button
+                type="submit"
+                size="icon"
+                disabled={isLoading || !input.trim()}
+                className="gradient-primary shrink-0 transition-all active:scale-95"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </form>
