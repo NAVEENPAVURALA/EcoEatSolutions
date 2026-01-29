@@ -13,6 +13,7 @@ const Signup = lazy(() => import("./pages/Signup"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Browse = lazy(() => import("./pages/Browse"));
 const Donate = lazy(() => import("./pages/Donate"));
+const Request = lazy(() => import("./pages/Request"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/donate/post" element={<Donate />} />
+            <Route path="/request" element={<Request />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
