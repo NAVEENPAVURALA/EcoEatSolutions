@@ -1,282 +1,234 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase/config";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { query, collection, where, getDocs, orderBy, limit, doc, getDoc } from "firebase/firestore";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Search, Utensils, Heart, ArrowRight, User, Settings, Sparkles, Clock, Leaf, Package } from "lucide-react";
 import { toast } from "sonner";
-import { LogOut, Plus, Heart, TrendingUp, Users, Leaf, Home, Package } from "lucide-react";
-import { BackToHomeButton } from "@/components/BackToHomeButton";
-import { EmergencyMode } from "@/components/EmergencyMode";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [userType, setUserType] = useState<string>("");
-  const [fullName, setFullName] = useState<string>("");
+  const [user, setUser] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [stats, setStats] = useState({
-    donations: 0,
-    meals: 0,
-    impact: 0,
-    co2Saved: 0,
-    peopleHelped: 0
+    activeDonations: 0,
+    completedDonations: 0,
+    impactScore: 0
   });
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setFullName(user.displayName || "User");
-
-        // Fetch user type from Firestore
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            setUserType(userDoc.data().user_type || "individual");
-          }
-          await fetchUserStats(user.uid);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      } else {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
         navigate("/login");
+        return;
       }
-      setLoading(false);
+      setUser(currentUser);
+
+      try {
+        // Fetch User Profile
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data());
+        }
+
+        // Fetch Stats (Mock logic for now, meant to be replaced with real aggregation)
+        const q = query(
+          collection(db, "donations"),
+          where("userId", "==", currentUser.uid),
+          orderBy("created_at", "desc"),
+          limit(5)
+        );
+        const querySnapshot = await getDocs(q);
+
+        const donations = querySnapshot.docs.map(doc => doc.data());
+        setRecentActivity(donations);
+        setStats({
+          activeDonations: donations.filter(d => d.status === "available").length,
+          completedDonations: donations.filter(d => d.status === "claimed").length,
+          impactScore: donations.length * 10 // Arbitrary impact score
+        });
+
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        toast.error("Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();
   }, [navigate]);
 
-  const fetchUserStats = async (userId: string) => {
-    try {
-      const q = query(collection(db, "donations"), where("user_id", "==", userId));
-      const querySnapshot = await getDocs(q);
-      const donationsCount = querySnapshot.size;
-
-      let totalMeals = 0;
-      querySnapshot.forEach((doc) => {
-        const donation = doc.data();
-        const quantityStr = donation.quantity.toLowerCase();
-        const match = quantityStr.match(/(\d+\.?\d*)/);
-        if (match) {
-          const amount = parseFloat(match[1]);
-          if (quantityStr.includes("kg")) {
-            totalMeals += amount * 4;
-          } else if (quantityStr.includes("gm") || quantityStr.includes("g")) {
-            totalMeals += (amount / 1000) * 4;
-          }
-        }
-      });
-
-      // Calculate CO2 saved (rough estimate: 1kg food = 2.5kg CO2)
-      const co2Saved = Math.round((totalMeals / 4) * 2.5);
-      const peopleHelped = Math.round(totalMeals / 3); // Assuming 3 meals per person
-
-      setStats({
-        donations: donationsCount || 0,
-        meals: Math.round(totalMeals),
-        impact: donationsCount || 0,
-        co2Saved,
-        peopleHelped
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await signOut(auth);
-    toast.success("Signed out successfully");
-    navigate("/");
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b h-16" />
-        <main className="container mx-auto px-4 py-8 space-y-8">
-          <div className="h-20 bg-muted/20 rounded-lg animate-pulse w-1/3" />
-          <div className="flex gap-3">
-            {[1, 2].map(i => <div key={i} className="h-10 w-32 bg-muted/20 rounded-md animate-pulse" />)}
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted/20 rounded-xl animate-pulse" />)}
-          </div>
-          <div className="h-64 bg-muted/20 rounded-xl animate-pulse" />
-        </main>
+      <div className="container mx-auto p-8 space-y-8 animate-pulse">
+        <div className="h-12 w-1/3 bg-muted rounded-lg" />
+        <div className="grid md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted rounded-2xl" />)}
+        </div>
+        <div className="h-64 bg-muted rounded-2xl" />
       </div>
-    );
+    )
   }
 
-  const getDashboardContent = () => {
-    switch (userType) {
-      case "restaurant":
-        return {
-          title: "Restaurant Dashboard",
-          stats: [
-            { label: "Total Donations", value: stats.donations.toString(), icon: Heart, color: "text-primary" },
-            { label: "Meals Donated", value: stats.meals.toString(), icon: TrendingUp, color: "text-secondary" },
-            { label: "Impact Score", value: stats.impact.toString(), icon: Leaf, color: "text-accent" }
-          ],
-          quickActions: [
-            { label: "Post New Donation", action: () => navigate("/donate/post"), variant: "default" as const }
-          ]
-        };
-      case "organization":
-        return {
-          title: "Organization Dashboard",
-          stats: [
-            { label: "Active Requests", value: "0", icon: Heart, color: "text-primary" },
-            { label: "Received Donations", value: stats.donations.toString(), icon: TrendingUp, color: "text-secondary" },
-            { label: "People Fed", value: stats.peopleHelped.toString(), icon: Users, color: "text-accent" }
-          ],
-          quickActions: [
-            { label: "Browse Donations", action: () => navigate("/browse"), variant: "default" as const },
-            { label: "Create Request", action: () => navigate("/request"), variant: "outline" as const }
-          ]
-        };
-      default:
-        return {
-          title: "Individual Dashboard",
-          stats: [
-            { label: "Donations Made", value: stats.donations.toString(), icon: Heart, color: "text-primary" },
-            { label: "Meals Shared", value: stats.meals.toString(), icon: TrendingUp, color: "text-secondary" },
-            { label: "Community Impact", value: stats.impact.toString(), icon: Leaf, color: "text-accent" }
-          ],
-          quickActions: [
-            { label: "Donate Food", action: () => navigate("/donate/post"), variant: "default" as const },
-            { label: "Browse Requests", action: () => navigate("/browse"), variant: "outline" as const }
-          ]
-        };
-    }
-  };
-
-  const content = getDashboardContent();
+  const userType = userData?.user_type || "individual";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
-      <BackToHomeButton />
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg gradient-primary">
-                <Leaf className="w-6 h-6 text-primary-foreground" />
+    <div className="container mx-auto px-4 py-8 animate-fade-in">
+
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Hello, {userData?.full_name?.split(" ")[0] || "Friend"}
+          </h1>
+          <p className="text-muted-foreground">
+            Here's your impact overview for today.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" className="rounded-full">
+            <Settings className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" className="rounded-full gap-2">
+            <User className="w-4 h-4" />
+            Profile
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        {/* Quick Actions Card (Double width on mobile if needed, usually simplistic) */}
+        <Card className="md:col-span-2 glass-card border-none bg-gradient-to-br from-primary/5 to-blue-500/5 overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Sparkles className="w-32 h-32" />
+          </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Quick Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid sm:grid-cols-2 gap-4 relative z-10">
+            {userType === "restaurant" || userType === "individual" ? (
+              <Button
+                size="lg"
+                className="h-14 text-lg bg-primary hover:bg-primary/90 shadow-glow group"
+                onClick={() => navigate("/donate/post")}
+              >
+                <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" />
+                Donate Food
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                className="h-14 text-lg bg-primary hover:bg-primary/90 shadow-glow"
+                onClick={() => navigate("/request")}
+              >
+                <Utensils className="mr-2 h-5 w-5" />
+                Request Food
+              </Button>
+            )}
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-14 text-lg bg-white/50 hover:bg-white/80"
+              onClick={() => navigate("/browse")}
+            >
+              <Search className="mr-2 h-5 w-5" />
+              Browse Listings
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Impact Score Card */}
+        <Card className="glass-card flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-amber-100/50 to-orange-100/50 border-orange-200/50">
+          <div className="p-4 bg-orange-100 rounded-full text-orange-600 mb-4">
+            <Heart className="w-8 h-8 fill-current" />
+          </div>
+          <div className="text-4xl font-bold mb-1">{stats.impactScore}</div>
+          <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Impact Score</div>
+          <p className="text-xs text-muted-foreground mt-2">Top 10% in your area!</p>
+        </Card>
+
+        {/* Stats Row */}
+        <Card className="glass-card p-6 flex items-center gap-4">
+          <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
+            <Package className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold">{stats.activeDonations}</div>
+            <div className="text-sm text-muted-foreground">Active Listings</div>
+          </div>
+        </Card>
+
+        <Card className="glass-card p-6 flex items-center gap-4">
+          <div className="p-3 bg-green-100 text-green-600 rounded-xl">
+            <Leaf className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold">{stats.completedDonations}</div>
+            <div className="text-sm text-muted-foreground">Completed</div>
+          </div>
+        </Card>
+
+        <Card className="glass-card p-6 flex items-center gap-4">
+          <div className="p-3 bg-purple-100 text-purple-600 rounded-xl">
+            <Clock className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold">12h</div>
+            <div className="text-sm text-muted-foreground">Avg. Pickup Time</div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Recent Activity Section */}
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        Recent Activity
+        <ArrowRight className="w-4 h-4 text-muted-foreground" />
+      </h2>
+
+      <div className="space-y-4">
+        {recentActivity.length > 0 ? (
+          recentActivity.map((d, i) => (
+            <div key={i} className="group flex items-center justify-between p-4 rounded-xl bg-white border border-border/50 hover:border-primary/50 hover:shadow-md transition-all">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-lg bg-secondary/50 flex items-center justify-center">
+                  {d.type === "veg" ? "🥗" : "🍗"}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{d.title}</h3>
+                  <p className="text-sm text-muted-foreground">{new Date(d.created_at).toLocaleDateString()}</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-bold">EcoEatSolutions</h1>
-                <p className="text-sm text-muted-foreground">Welcome back, {fullName}</p>
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${d.status === "available" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                }`}>
+                {d.status}
               </div>
             </div>
-            <Button variant="ghost" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Welcome Section */}
-          <div>
-            <h2 className="text-3xl font-bold mb-2">{content.title}</h2>
-            <p className="text-muted-foreground">
-              Track your impact and manage your {userType === "restaurant" ? "donations" : userType === "organization" ? "requests" : "contributions"}
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-border/50 rounded-2xl">
+            <div className="p-4 bg-secondary/50 rounded-full mb-4">
+              <Package className="w-8 h-8 text-muted-foreground/50" />
+            </div>
+            <p className="text-lg font-medium text-foreground">No activity yet</p>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+              Your journey starts with a single step. Make your first contribution today.
             </p>
+            <Button variant="outline" onClick={() => navigate("/donate/post")}>Post Donation</Button>
           </div>
+        )}
+      </div>
 
-          {/* Quick Actions */}
-          <div className="flex flex-wrap gap-3">
-            {content.quickActions.map((action, index) => (
-              <Button
-                key={index}
-                variant={action.variant}
-                size="lg"
-                onClick={action.action}
-                className={action.variant === "default" ? "gradient-primary" : ""}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {action.label}
-              </Button>
-            ))}
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {content.stats.map((stat, index) => (
-              <Card key={index} className="border-2 hover:border-primary/50 transition-all">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardDescription>{stat.label}</CardDescription>
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold">{stat.value}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest {userType === "restaurant" ? "donations" : "actions"}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <div className="flex flex-col items-center justify-center text-muted-foreground">
-                  <div className="p-4 bg-muted/20 rounded-full mb-3">
-                    <Package className="w-8 h-8 opacity-50" />
-                  </div>
-                  <p className="font-medium">No recent activity</p>
-                  <p className="text-sm mt-1 max-w-sm">
-                    {userType === "restaurant"
-                      ? "Your donations will appear here. Start by posting your first food donation!"
-                      : userType === "organization"
-                        ? "Requests and claimed donations will be tracked here."
-                        : "Your contributions make a difference. Start donating today!"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Emergency Mode - Admin Only */}
-          {userType === "organization" && (
-            <EmergencyMode />
-          )}
-
-          {/* Impact Summary */}
-          <Card className="gradient-hero text-white">
-            <CardHeader>
-              <CardTitle>Your Impact Summary</CardTitle>
-              <CardDescription className="text-white/80">
-                Making a difference in your community
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <div className="text-sm opacity-90">Environmental Impact</div>
-                  <div className="text-2xl font-bold mt-1">{stats.co2Saved} kg CO₂ saved</div>
-                </div>
-                <div>
-                  <div className="text-sm opacity-90">Community Reach</div>
-                  <div className="text-2xl font-bold mt-1">{stats.peopleHelped} people helped</div>
-                </div>
-              </div>
-              <p className="text-sm opacity-80 pt-4">
-                Every donation helps reduce food waste and feeds those in need. Keep up the great work!
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
     </div>
   );
 };
