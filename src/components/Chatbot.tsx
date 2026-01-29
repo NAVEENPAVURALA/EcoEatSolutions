@@ -34,66 +34,68 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      let apiKey = import.meta.env.VITE_HUGGING_FACE_API_KEY;
-      if (!apiKey) {
-        throw new Error("API key not configured");
+      let text = "";
+
+      // ---------------------------------------------------------
+      // PRODUCTION: Use Vercel Proxy (Secure & No CORS)
+      // ---------------------------------------------------------
+      if (!import.meta.env.DEV) {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: input })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Server error");
+        }
+        const data = await response.json();
+        text = data.response;
+
       }
-      apiKey = apiKey.trim(); // Ensure no spaces
+      // ---------------------------------------------------------
+      // DEVELOPMENT: Use Direct Call (Uses local .env key)
+      // ---------------------------------------------------------
+      else {
+        let apiKey = import.meta.env.VITE_HUGGING_FACE_API_KEY;
+        if (!apiKey) throw new Error("API key not configured");
+        apiKey = apiKey.trim();
 
-      // Prompt for Mistral-7B-Instruct-v0.2
-      const systemPrompt = "You are EcoEat Assistant, a helpful AI for a food donation platform. Keep answers concise (max 3 sentences).";
-      const prompt = `<s>[INST] ${systemPrompt} ${input} [/INST]`;
+        const systemPrompt = "You are EcoEat Assistant, a helpful AI for a food donation platform. Keep answers concise (max 3 sentences).";
+        const prompt = `<s>[INST] ${systemPrompt} ${input} [/INST]`;
 
-      const response = await fetch(
-        "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            inputs: prompt,
-            parameters: {
-              max_new_tokens: 150,
-              temperature: 0.7,
-              return_full_text: false,
+        const response = await fetch(
+          "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+          {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
             },
-          }),
-        }
-      );
+            method: "POST",
+            body: JSON.stringify({
+              inputs: prompt,
+              parameters: {
+                max_new_tokens: 150,
+                temperature: 0.7,
+                return_full_text: false,
+              },
+            }),
+          }
+        );
 
-      if (!response.ok) {
-        // Handle common HF errors
-        const errorText = await response.text();
-        let errorMessage = "API request failed";
-        try {
-          const json = JSON.parse(errorText);
-          errorMessage = json.error || errorMessage;
-        } catch (e) {
-          errorMessage = errorText || response.statusText;
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error("Direct API Error: " + errorText);
         }
-
-        // Handle model loading state
-        if (errorMessage.includes("loading")) {
-          throw new Error("Model is waking up. Please try again in 20 seconds.");
-        }
-        throw new Error(errorMessage);
+        const result = await response.json();
+        text = result[0]?.generated_text || "No response";
       }
-
-      const result = await response.json();
-      const text = result[0]?.generated_text || "I couldn't generate a response.";
 
       setMessages((prev) => [...prev, { role: "assistant", content: text.trim() }]);
     } catch (error: any) {
       console.error("Chat Error:", error);
-      let msg = error.message || "Connection failed";
-
-      if (msg === "Failed to fetch" || msg === "Load failed") {
-        msg = "Network error. Check your connection or ad-blocker.";
-      }
-
-      toast.error(msg);
+      toast.error(error.message || "Failed to send message");
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
