@@ -1,46 +1,61 @@
-**Use your preferred IDE**
-update from Mac
+# EcoEatSolutions 🍏
 
+> **Bridging the gap between food surplus and scarcity.**
 
+A premium, "Apple-Standard" platform connecting donors, restaurants, and NGOs to reduce food waste. Built with precision, aesthetics, and performance in mind.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## ✨ Features
 
-Follow these steps:
+-   **Premium Design System**: Glassmorphism, smooth animations (`animate-fade-up`), and a refined Zinc monochrome palette.
+-   **Immersive Landing Page**: Full-screen hero section with dynamic feature grids.
+-   **Smart Authentication**: Role-based signup (Donor, Restaurant, NGO) with a minimalist UI.
+-   **Bento Grid Dashboard**: Data visualization for stats, quick actions, and activity logs.
+-   **Streamlined Flows**:
+    -   **Donate**: Single-column, step-by-step form with dynamic 3D food previews.
+    -   **Browse**: High-fidelity cards with real-time claiming logic.
+-   **3D Assets**: Custom-rendered visuals for food categories (Veg, Non-Veg, Bakery).
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🛠 Tech Stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+-   **Frontend**: React + TypeScript (Vite)
+-   **Styling**: Tailwind CSS + Shadcn UI
+-   **Backend**: Firebase (Authentication, Firestore)
+-   **Icons**: Lucide React
+-   **Font**: Inter (Google Fonts)
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### Prerequisites
 
-**Edit a file directly in GitHub**
+-   Node.js & npm
+-   A Firebase project with Auth and Firestore enabled.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Installation
 
-**Use GitHub Codespaces**
+1.  **Clone the repo**
+    ```bash
+    git clone https://github.com/NAVEENPAVURALA/EcoEatSolutions.git
+    cd EcoEatSolutions
+    ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
 
-## What technologies are used for this project?
+3.  **Setup Environment**
+    Create a `.env` file in the root and add your Firebase credentials (see `DEPLOYMENT.md` for details).
 
-This project is built with:
+4.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📦 Deployment
+
+This project is optimized for deployment on Vercel.
+Refer to [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions and security rules.
+
+---
+
+*Designed & Engineered by the Advanced Agentic Coding Team*
